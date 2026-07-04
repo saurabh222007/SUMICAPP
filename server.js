@@ -328,29 +328,50 @@ app.get('/api/stream', async (req, res) => {
     return res.status(400).json({ error: 'Please provide a track ID.' });
   }
 
+  // 1. Try ytdl-core first (Fastest and most reliable if not blocked by YouTube)
   try {
     const url = `https://www.youtube.com/watch?v=${id}`;
-    
-    // Validate if it's a valid ID
-    if (!ytdl.validateURL(url) && !ytdl.validateID(id)) {
-      return res.status(400).json({ error: 'Invalid YouTube ID.' });
+    if (ytdl.validateURL(url) || ytdl.validateID(id)) {
+      const info = await ytdl.getInfo(id);
+      const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
+      if (format && format.url) {
+        return res.redirect(format.url);
+      }
     }
-
-    // Get video info
-    const info = await ytdl.getInfo(id);
-    
-    // Choose the best audio format
-    const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
-    
-    if (format && format.url) {
-      return res.redirect(format.url);
-    }
-    
-    return res.status(502).json({ error: 'Could not extract audio stream.' });
   } catch (err) {
-    console.error('ytdl error:', err);
-    return res.status(502).json({ error: 'Could not resolve streaming URL from YouTube.' });
+    console.error('ytdl error, falling back to proxies:', err.message);
   }
+
+  // 2. Fallback to Piped proxies
+  for (const inst of instances) {
+    if (inst.type !== 'piped') continue;
+    try {
+      const resp = await fetchUrl(`${inst.url}/streams/${id}`, { timeout: 6000 });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const audioStreams = data.audioStreams || [];
+      if (audioStreams.length > 0) {
+        return res.redirect(audioStreams[0].url);
+      }
+    } catch { continue; }
+  }
+
+  // 3. Fallback to Invidious proxies
+  for (const inst of instances) {
+    if (inst.type !== 'invidious') continue;
+    try {
+      const resp = await fetchUrl(`${inst.url}/videos/${id}`, { timeout: 6000 });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const formatStreams = data.adaptiveFormats || [];
+      const audioStream = formatStreams.find(f => f.type && f.type.startsWith('audio/'));
+      if (audioStream && audioStream.url) {
+        return res.redirect(audioStream.url);
+      }
+    } catch { continue; }
+  }
+
+  return res.status(502).json({ error: 'Could not resolve streaming URL from YouTube or proxies.' });
 });
 
 // ── /api/import-playlist endpoint (Spotify Import Feature) ──────────────
