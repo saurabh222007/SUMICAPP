@@ -1,0 +1,27 @@
+{
+  "name": "sumic-backend",
+  "version": "1.0.0",
+  "description": "Sumic Express Backend - handles YouTube search scrape, lyric retrieval, and Spotify playlist imports.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "music",
+    "streaming",
+    "player",
+    "express",
+    "youtube",
+    "spotify-import",
+    "lyrics"
+  ],
+  "author": "saurabh222007",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
