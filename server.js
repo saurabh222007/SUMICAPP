@@ -11,6 +11,7 @@ const https = require('https');
 const http = require('http');
 const path = require('path');
 const url = require('url');
+const ytdl = require('@distube/ytdl-core');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -327,42 +328,29 @@ app.get('/api/stream', async (req, res) => {
     return res.status(400).json({ error: 'Please provide a track ID.' });
   }
 
-  // Iterate over Piped instances to find the streaming URL
-  for (const inst of instances) {
-    if (inst.type !== 'piped') continue;
-    try {
-      const resp = await fetchUrl(`${inst.url}/streams/${id}`, { timeout: 6000 });
-      if (!resp.ok) continue;
-      const data = await resp.json();
-      
-      const audioStreams = data.audioStreams || [];
-      if (audioStreams.length > 0) {
-        // Redirect to the direct streaming URL
-        return res.redirect(audioStreams[0].url);
-      }
-    } catch {
-      continue;
+  try {
+    const url = `https://www.youtube.com/watch?v=${id}`;
+    
+    // Validate if it's a valid ID
+    if (!ytdl.validateURL(url) && !ytdl.validateID(id)) {
+      return res.status(400).json({ error: 'Invalid YouTube ID.' });
     }
-  }
 
-  // Fallback to Invidious
-  for (const inst of instances) {
-    if (inst.type !== 'invidious') continue;
-    try {
-      const resp = await fetchUrl(`${inst.url}/videos/${id}`, { timeout: 6000 });
-      if (!resp.ok) continue;
-      const data = await resp.json();
-      const formatStreams = data.adaptiveFormats || [];
-      const audioStream = formatStreams.find(f => f.type && f.type.startsWith('audio/'));
-      if (audioStream && audioStream.url) {
-        return res.redirect(audioStream.url);
-      }
-    } catch {
-      continue;
+    // Get video info
+    const info = await ytdl.getInfo(id);
+    
+    // Choose the best audio format
+    const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
+    
+    if (format && format.url) {
+      return res.redirect(format.url);
     }
+    
+    return res.status(502).json({ error: 'Could not extract audio stream.' });
+  } catch (err) {
+    console.error('ytdl error:', err);
+    return res.status(502).json({ error: 'Could not resolve streaming URL from YouTube.' });
   }
-
-  return res.status(502).json({ error: 'Could not resolve streaming URL from YouTube.' });
 });
 
 // ── /api/import-playlist endpoint (Spotify Import Feature) ──────────────
