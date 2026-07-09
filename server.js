@@ -339,7 +339,7 @@ app.get('/api/search', async (req, res) => {
 });
 
 // ── /api/stream endpoint ────────────────────────────────────────────────
-app.get('/api/stream', async (req, res) => {
+app.get(['/api/stream', '/api/stream.m3u8'], async (req, res) => {
   const title = String(req.query.title || '').trim();
   const artist = String(req.query.artist || '').trim();
   const id = String(req.query.id || '').trim();
