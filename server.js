@@ -332,14 +332,13 @@ app.get('/api/stream', async (req, res) => {
       const searchResults = await scClient.search(searchPhrase, 'track');
       if (searchResults.length > 0) {
         const match = searchResults[0];
-        console.log(`Resolved SoundCloud track: "${match.title}" - Piping stream...`);
+        console.log(`Resolved SoundCloud track: "${match.title}" - Fetching direct CDN URL...`);
         const song = await scClient.getSongInfo(match.url);
-        const stream = await song.downloadProgressive();
-        
-        res.setHeader('Content-Type', 'audio/mpeg');
-        res.setHeader('Accept-Ranges', 'bytes');
-        stream.pipe(res);
-        return;
+        const directUrl = await scClient.fetchStreamURL(song.streams.progressive || song.streams.hls);
+        if (directUrl) {
+          console.log(`Redirecting to SoundCloud stream URL: ${directUrl.substring(0, 80)}...`);
+          return res.redirect(directUrl);
+        }
       }
     } catch (e) {
       console.error('SoundCloud stream resolution failed, falling back to YouTube:', e.message);
