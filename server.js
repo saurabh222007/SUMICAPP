@@ -578,6 +578,7 @@ app.get('/yt-stream/:videoId', async (req, res) => {
     const videoId = req.params.videoId;
     console.log(`Extracting stream using yt-dlp for video: ${videoId}`);
     
+    const fs = require('fs');
     const destPath = path.join(__dirname, 'yt-dlp');
     
     // Download standalone yt-dlp binary if not present
