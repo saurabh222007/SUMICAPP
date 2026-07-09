@@ -270,17 +270,37 @@ app.get('/api/lyrics', async (req, res) => {
   }
 
   try {
-    const searchUrl = new URL('https://lrclib.net/api/search');
-    searchUrl.searchParams.set('track_name', track);
-    if (artist) searchUrl.searchParams.set('artist_name', artist);
+    let match = null;
 
-    const response = await fetchUrl(searchUrl.toString(), { timeout: 8000 });
-    if (!response.ok) {
-      return res.status(404).json({ error: 'No lyrics found.' });
+    // Step 1: Try exact match fetch via /api/get if artist is provided
+    if (artist) {
+      try {
+        const getUrl = `https://lrclib.net/api/get?track_name=${encodeURIComponent(track)}&artist_name=${encodeURIComponent(artist)}`;
+        const getResp = await fetchUrl(getUrl, { timeout: 4000 });
+        if (getResp.ok) {
+          const getData = await getResp.json();
+          if (getData && !getData.error && !getData.instrumental) {
+            match = getData;
+          }
+        }
+      } catch (err) {
+        console.warn('LRCLib exact match lookup failed, trying search fallback:', err.message);
+      }
     }
 
-    const data = await response.json();
-    const match = Array.isArray(data) ? (data.find(item => !item.instrumental) || data[0]) : null;
+    // Step 2: Fallback to /api/search if no exact match found
+    if (!match) {
+      const searchUrl = new URL('https://lrclib.net/api/search');
+      searchUrl.searchParams.set('track_name', track);
+      if (artist) searchUrl.searchParams.set('artist_name', artist);
+
+      const searchResp = await fetchUrl(searchUrl.toString(), { timeout: 6000 });
+      if (searchResp.ok) {
+        const searchData = await searchResp.json();
+        match = Array.isArray(searchData) ? (searchData.find(item => !item.instrumental) || searchData[0]) : null;
+      }
+    }
+
     if (!match) {
       return res.status(404).json({ error: 'No lyrics found.' });
     }
