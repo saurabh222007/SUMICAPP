@@ -11,7 +11,30 @@ const https = require('https');
 const http = require('http');
 const path = require('path');
 const url = require('url');
-const ytdl = require('@distube/ytdl-core');
+
+// spotify-url-info initialization
+const customFetch = (url, options = {}) => {
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'https://open.spotify.com/',
+    'Origin': 'https://open.spotify.com',
+    ...(options.headers || {})
+  };
+  return fetch(url, { ...options, headers });
+};
+const { getDetails } = require('spotify-url-info')(customFetch);
+
+// youtubei.js initialization
+const { Innertube } = require('youtubei.js');
+let youtube;
+async function getYoutube() {
+  if (!youtube) {
+    youtube = await Innertube.create();
+  }
+  return youtube;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -188,49 +211,19 @@ function parseSpotifyPlaylistUrl(rawUrl) {
  * Returns an array of { title, artist } objects.
  */
 async function fetchSpotifyPlaylistTracks(playlistId) {
-  // Method 1: Spotify embed page (returns JSON in a <script> tag)
   try {
-    const resp = await fetchUrl(
-      `https://open.spotify.com/embed/playlist/${playlistId}`,
-      { timeout: 10000, headers: { 'Accept': 'text/html' } }
-    );
-    if (resp.ok) {
-      const html = await resp.text();
-      // Spotify embeds put track data in a __NEXT_DATA__ JSON blob
-      const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
-      if (match) {
-        const json = JSON.parse(match[1]);
-        // Navigate the Next.js page props to find the track list
-        const tracks =
-          json?.props?.pageProps?.state?.data?.entity?.trackList ||
-          json?.props?.pageProps?.state?.data?.entity?.items ||
-          json?.props?.pageProps?.state?.data?.entity?.tracks?.items ||
-          [];
-        if (tracks.length > 0) {
-          return tracks.slice(0, 100).map(t => ({
-            title: t.title || t.name || t.track?.name || 'Unknown',
-            artist: t.subtitle || t.artists?.map(a => a.name).join(', ') || t.track?.artists?.[0]?.name || t.track?.artists?.map(a => a.name).join(', ') || '',
-          })).filter(t => t.title !== 'Unknown');
-        }
-      }
+    const playlistUrl = `https://open.spotify.com/playlist/${playlistId}`;
+    const details = await getDetails(playlistUrl);
+    if (details && details.tracks) {
+      return details.tracks.map(t => ({
+        title: t.name || 'Unknown',
+        artist: t.artist || '',
+      })).filter(t => t.title !== 'Unknown');
     }
-  } catch { /* fall through */ }
-
-  // Method 2: Spotify oEmbed (gives playlist name but not tracks — use as metadata only)
-  let playlistTitle = 'Imported Playlist';
-  try {
-    const oembed = await fetchUrl(
-      `https://open.spotify.com/oembed?url=https://open.spotify.com/playlist/${playlistId}`,
-      { timeout: 6000 }
-    );
-    if (oembed.ok) {
-      const data = await oembed.json();
-      if (data.title) playlistTitle = data.title;
-    }
-  } catch { /* ignore */ }
-
-  // Method 3: Piped playlist API fallback
-  return { fallback: true, title: playlistTitle };
+  } catch (e) {
+    console.error('fetchSpotifyPlaylistTracks error:', e);
+  }
+  return { fallback: true, title: 'Imported Playlist' };
 }
 
 async function searchOneTrack(query) {
@@ -328,50 +321,78 @@ app.get('/api/stream', async (req, res) => {
     return res.status(400).json({ error: 'Please provide a track ID.' });
   }
 
-  // 1. Try ytdl-core first (Fastest and most reliable if not blocked by YouTube)
+  // 1. Try youtubei.js streaming first (resolves directly from YouTube using Innertube engine)
   try {
-    const url = `https://www.youtube.com/watch?v=${id}`;
-    if (ytdl.validateURL(url) || ytdl.validateID(id)) {
-      const info = await ytdl.getInfo(id);
-      const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
-      if (format && format.url) {
-        return res.redirect(format.url);
+    const yt = await getYoutube();
+    const stream = await yt.download(id, {
+      type: 'audio',
+      quality: 'best',
+      format: 'any'
+    });
+    
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Accept-Ranges', 'bytes');
+
+    const reader = stream.getReader();
+    const pump = async () => {
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          res.end();
+          return;
+        }
+        res.write(Buffer.from(value));
+        pump();
+      } catch (err) {
+        console.error('Error pumping stream:', err);
+        res.destroy();
       }
-    }
+    };
+    pump();
+    return;
   } catch (err) {
-    console.error('ytdl error, falling back to proxies:', err.message);
+    console.error('youtubei.js download failed, falling back to dynamic Invidious proxy:', err.message);
   }
 
-  // 2. Fallback to Piped proxies
+  // 2. Fallback to Dynamic Invidious Proxy list (resolves using public Invidious proxies with local=true)
+  try {
+    const resp = await fetchUrl('https://api.invidious.io/instances.json?sort_by=type,health', { timeout: 3500 });
+    if (resp.ok) {
+      const instancesData = await resp.json();
+      const workingUris = [];
+      for (const [name, inst] of instancesData) {
+        if (inst.type === 'https' && inst.monitor && !inst.monitor.down) {
+          workingUris.push(inst.uri);
+        }
+      }
+      for (const uri of workingUris.slice(0, 6)) {
+        try {
+          console.log(`Redirecting to Invidious proxy: ${uri}/latest_version?id=${id}&local=true`);
+          return res.redirect(`${uri}/latest_version?id=${id}&local=true`);
+        } catch (_) {}
+      }
+    }
+  } catch (e) {
+    console.error('Dynamic Invidious fallback failed:', e.message);
+  }
+
+  // 3. Last resort fallback: Hardcoded Piped instances
   for (const inst of instances) {
     if (inst.type !== 'piped') continue;
     try {
-      const resp = await fetchUrl(`${inst.url}/streams/${id}`, { timeout: 6000 });
+      const resp = await fetchUrl(`${inst.url}/streams/${id}`, { timeout: 4000 });
       if (!resp.ok) continue;
       const data = await resp.json();
       const audioStreams = data.audioStreams || [];
       if (audioStreams.length > 0) {
         return res.redirect(audioStreams[0].url);
       }
-    } catch { continue; }
+    } catch {
+      continue;
+    }
   }
 
-  // 3. Fallback to Invidious proxies
-  for (const inst of instances) {
-    if (inst.type !== 'invidious') continue;
-    try {
-      const resp = await fetchUrl(`${inst.url}/videos/${id}`, { timeout: 6000 });
-      if (!resp.ok) continue;
-      const data = await resp.json();
-      const formatStreams = data.adaptiveFormats || [];
-      const audioStream = formatStreams.find(f => f.type && f.type.startsWith('audio/'));
-      if (audioStream && audioStream.url) {
-        return res.redirect(audioStream.url);
-      }
-    } catch { continue; }
-  }
-
-  return res.status(502).json({ error: 'Could not resolve streaming URL from YouTube or proxies.' });
+  return res.status(502).json({ error: 'Could not resolve streaming URL from YouTube or dynamic proxies.' });
 });
 
 // ── /api/import-playlist endpoint (Spotify Import Feature) ──────────────
