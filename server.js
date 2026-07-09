@@ -608,14 +608,41 @@ app.listen(PORT, () => {
   // Start python FastAPI yt_worker process in the background
   try {
     const { spawn, execSync } = require('child_process');
-    console.log('Installing Python dependencies for yt_worker...');
     const reqPath = path.join(__dirname, 'yt_worker', 'requirements.txt');
-    
-    execSync(`pip install -r "${reqPath}"`, { stdio: 'inherit' });
-    console.log('Python dependencies installed successfully.');
 
-    console.log('Starting Python FastAPI yt_worker at http://127.0.0.1:8000 ...');
-    const pyProcess = spawn('uvicorn', ['yt_worker.main:app', '--port', '8000', '--host', '127.0.0.1']);
+    // 1. Detect Python executable name
+    let pythonCmd = 'python3';
+    try {
+      execSync('python3 --version', { stdio: 'ignore' });
+    } catch (_) {
+      try {
+        execSync('python --version', { stdio: 'ignore' });
+        pythonCmd = 'python';
+      } catch (e) {
+        console.error('Neither python3 nor python is available in the environment.');
+        return;
+      }
+    }
+    console.log(`Using Python executable: ${pythonCmd}`);
+
+    // 2. Install requirements using the detected Python binary
+    console.log('Installing Python dependencies for yt_worker...');
+    try {
+      execSync(`"${pythonCmd}" -m pip install -r "${reqPath}"`, { stdio: 'inherit' });
+      console.log('Python dependencies installed successfully.');
+    } catch (pipErr) {
+      console.error('pip install failed, attempting with user flag:', pipErr.message);
+      try {
+        execSync(`"${pythonCmd}" -m pip install --user -r "${reqPath}"`, { stdio: 'inherit' });
+        console.log('Python dependencies installed with --user successfully.');
+      } catch (pipUserErr) {
+        console.error('All pip install attempts failed:', pipUserErr.message);
+      }
+    }
+
+    // 3. Start Python FastAPI worker using module execution (guarantees local path resolution)
+    console.log(`Starting Python FastAPI yt_worker at http://127.0.0.1:8000 using ${pythonCmd} -m uvicorn...`);
+    const pyProcess = spawn(pythonCmd, ['-m', 'uvicorn', 'yt_worker.main:app', '--port', '8000', '--host', '127.0.0.1']);
     
     pyProcess.stdout.on('data', (data) => {
       console.log(`[yt_worker] ${data.toString().trim()}`);
