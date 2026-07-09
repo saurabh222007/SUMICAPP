@@ -36,6 +36,10 @@ async function getYoutube() {
   return youtube;
 }
 
+// SoundCloud client initialization
+const SoundCloud = require('soundcloud-scraper');
+const scClient = new SoundCloud.Client();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -316,12 +320,33 @@ app.get('/api/search', async (req, res) => {
 
 // ── /api/stream endpoint ────────────────────────────────────────────────
 app.get('/api/stream', async (req, res) => {
+  const title = String(req.query.title || '').trim();
+  const artist = String(req.query.artist || '').trim();
   const id = String(req.query.id || '').trim();
-  if (!id) {
-    return res.status(400).json({ error: 'Please provide a track ID.' });
+
+  // 1. Try SoundCloud streaming first (extremely stable, unblocked, fast)
+  if (title) {
+    try {
+      const searchPhrase = artist ? `${title} ${artist}` : title;
+      console.log(`SoundCloud stream request: "${searchPhrase}"`);
+      const searchResults = await scClient.search(searchPhrase, 'track');
+      if (searchResults.length > 0) {
+        const match = searchResults[0];
+        console.log(`Resolved SoundCloud track: "${match.title}" - Piping stream...`);
+        const song = await scClient.getSongInfo(match.url);
+        const stream = await song.downloadProgressive();
+        
+        res.setHeader('Content-Type', 'audio/mpeg');
+        res.setHeader('Accept-Ranges', 'bytes');
+        stream.pipe(res);
+        return;
+      }
+    } catch (e) {
+      console.error('SoundCloud stream resolution failed, falling back to YouTube:', e.message);
+    }
   }
 
-  // 1. Try youtubei.js streaming first (resolves directly from YouTube using Innertube engine)
+  // 2. Try youtubei.js streaming (resolves directly from YouTube using Innertube engine)
   try {
     const yt = await getYoutube();
     const stream = await yt.download(id, {

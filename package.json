@@ -28,6 +28,7 @@
     "jsonwebtoken": "^9.0.3",
     "spotify-url-info": "^3.3.1",
     "sqlite3": "^6.0.1",
-    "youtubei.js": "^12.2.0"
+    "youtubei.js": "^12.2.0",
+    "soundcloud-scraper": "^0.5.0"
   }
 }
