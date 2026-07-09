@@ -617,14 +617,39 @@ app.get('/yt-stream/:videoId', async (req, res) => {
       }
     }
 
-    // Run yt-dlp command to dump json
-    const output = execSync(`"${pythonCmd}" "${destPath}" -f bestaudio --extractor-args "youtube:client=android" --dump-json "https://www.youtube.com/watch?v=${videoId}"`, { encoding: 'utf8', timeout: 15000 });
+    // Try extracting from YouTube directly using the ios client first
+    let output;
+    let fallbackToSoundCloud = false;
+    try {
+      output = execSync(`"${pythonCmd}" "${destPath}" -f bestaudio --extractor-args "youtube:client=ios" --dump-json "https://www.youtube.com/watch?v=${videoId}"`, { encoding: 'utf8', timeout: 15000 });
+    } catch (ytErr) {
+      console.warn(`Direct YouTube extraction failed for ${videoId}: ${ytErr.message}`);
+      fallbackToSoundCloud = true;
+    }
+
+    // If it threw an error or the output was empty, fall back to SoundCloud
+    if (fallbackToSoundCloud || !output) {
+      console.log(`YouTube direct extraction rate-limited or blocked. Falling back to SoundCloud search...`);
+      try {
+        const yt = await getYoutube();
+        const info = await yt.getInfo(videoId);
+        const title = info.basic_info.title;
+        const author = info.basic_info.author || '';
+        
+        console.log(`Resolved video metadata from youtubei.js: "${title}" by "${author}"`);
+        console.log(`Searching SoundCloud via yt-dlp...`);
+        output = execSync(`"${pythonCmd}" "${destPath}" -f bestaudio --dump-json "scsearch:${title} ${author}"`, { encoding: 'utf8', timeout: 15000 });
+      } catch (scErr) {
+        console.error('SoundCloud fallback search also failed:', scErr.message);
+        throw new Error(`Both YouTube direct stream and SoundCloud fallback extraction failed: ${scErr.message}`);
+      }
+    }
+
     const data = JSON.parse(output);
-    
     return res.json({
       audio_url: data.url,
-      title: data.title,
-      duration: data.duration
+      title: data.title || 'Unknown Title',
+      duration: data.duration || 0
     });
   } catch (err) {
     console.error('Failed to extract stream metadata via yt-dlp:', err.message);
