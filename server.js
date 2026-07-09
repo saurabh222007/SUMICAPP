@@ -572,6 +572,24 @@ app.post('/api/import-playlist', async (req, res) => {
  * });
  */
 
+// ── /yt-stream/:videoId proxy route (yt_worker helper) ────────────────────
+app.get('/yt-stream/:videoId', async (req, res) => {
+  try {
+    const videoId = req.params.videoId;
+    console.log(`Forwarding request to Python yt_worker for video: ${videoId}`);
+    const response = await fetch(`http://127.0.0.1:8000/yt-stream/${videoId}`);
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      return res.status(response.status).json({ error: errData.detail || 'Failed to extract stream' });
+    }
+    const data = await response.json();
+    return res.json(data);
+  } catch (err) {
+    console.error('Failed to proxy request to Python yt_worker:', err.message);
+    return res.status(502).json({ error: `FastAPI worker error: ${err.message}` });
+  }
+});
+
 // ── Fallback → index.html (SPA support) ───────────────────────────────────
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'index.html'));
@@ -586,4 +604,35 @@ app.listen(PORT, () => {
   console.log(`  ║   Local Server URL: http://localhost:${PORT}      ║`);
   console.log(`  ║                                                  ║`);
   console.log(`  ╚══════════════════════════════════════════════════╝\n`);
+
+  // Start python FastAPI yt_worker process in the background
+  try {
+    const { spawn, execSync } = require('child_process');
+    console.log('Installing Python dependencies for yt_worker...');
+    const reqPath = path.join(__dirname, 'yt_worker', 'requirements.txt');
+    
+    execSync(`pip install -r "${reqPath}"`, { stdio: 'inherit' });
+    console.log('Python dependencies installed successfully.');
+
+    console.log('Starting Python FastAPI yt_worker at http://127.0.0.1:8000 ...');
+    const pyProcess = spawn('uvicorn', ['yt_worker.main:app', '--port', '8000', '--host', '127.0.0.1']);
+    
+    pyProcess.stdout.on('data', (data) => {
+      console.log(`[yt_worker] ${data.toString().trim()}`);
+    });
+    
+    pyProcess.stderr.on('data', (data) => {
+      console.error(`[yt_worker ERROR] ${data.toString().trim()}`);
+    });
+    
+    pyProcess.on('error', (err) => {
+      console.error('Failed to start python FastAPI worker:', err.message);
+    });
+
+    pyProcess.on('close', (code) => {
+      console.log(`Python FastAPI worker exited with code ${code}`);
+    });
+  } catch (err) {
+    console.error('Could not initialize Python FastAPI worker:', err.message);
+  }
 });
