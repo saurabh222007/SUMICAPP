@@ -411,14 +411,23 @@ app.post('/api/import-playlist', async (req, res) => {
     }
 
     // Step 1: Fetch actual track names from the Spotify playlist page
-    let spotifyTracks = await fetchSpotifyPlaylistTracks(playlistId);
-    let playlistTitle = 'Imported Playlist';
+    let spotifyTracks;
+    let playlistTitle = String(req.body?.title || 'Spotify Playlist').trim();
     let queries = [];
 
-    if (Array.isArray(spotifyTracks) && spotifyTracks.length > 0) {
-      // We got real track data from Spotify embed
+    const clientTracks = req.body?.tracks;
+    if (Array.isArray(clientTracks) && clientTracks.length > 0) {
+      spotifyTracks = clientTracks;
       queries = spotifyTracks.map(t => t.artist ? `${t.title} ${t.artist}` : t.title);
-      playlistTitle = 'Spotify Playlist';
+    } else {
+      spotifyTracks = await fetchSpotifyPlaylistTracks(playlistId);
+      if (Array.isArray(spotifyTracks) && spotifyTracks.length > 0) {
+        queries = spotifyTracks.map(t => t.artist ? `${t.title} ${t.artist}` : t.title);
+      }
+    }
+
+    if (queries.length > 0) {
+      // Skip fallback, proceed with matched queries
     } else if (spotifyTracks && spotifyTracks.fallback) {
       // Embed scrape failed — search YouTube for the playlist title to find
       // a matching YouTube playlist, then pull its tracks via Piped
