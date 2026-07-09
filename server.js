@@ -618,7 +618,7 @@ app.get('/yt-stream/:videoId', async (req, res) => {
     }
 
     // Run yt-dlp command to dump json
-    const output = execSync(`"${pythonCmd}" "${destPath}" -f bestaudio --dump-json "https://www.youtube.com/watch?v=${videoId}"`, { encoding: 'utf8', timeout: 15000 });
+    const output = execSync(`"${pythonCmd}" "${destPath}" -f bestaudio --extractor-args "youtube:client=android" --dump-json "https://www.youtube.com/watch?v=${videoId}"`, { encoding: 'utf8', timeout: 15000 });
     const data = JSON.parse(output);
     
     return res.json({
