@@ -1,0 +1,14 @@
+# SUMIC Native Splash Screen Configuration
+# Generated using flutter_native_splash package.
+
+flutter_native_splash:
+  color: "#0F0F13" # Dark theme background color
+  image: "assets/logos/splash_icon.png"
+  
+  android_12:
+    color: "#0F0F13"
+    icon_background_color: "#0F0F13"
+    image: "assets/logos/splash_icon.png"
+
+  fullscreen: true
+  android: true

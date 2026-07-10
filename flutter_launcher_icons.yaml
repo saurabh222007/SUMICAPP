@@ -1,0 +1,8 @@
+# SUMIC Launcher Icons Configuration
+# Generated using flutter_launcher_icons package.
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  image_path: "assets/logos/app_icon.png"
+  adaptive_icon_background: "#0F0F13" # Matching app dark theme background
+  adaptive_icon_foreground: "assets/logos/app_icon_foreground.png"
