@@ -354,10 +354,15 @@ app.get(['/api/stream', '/api/stream.m3u8'], async (req, res) => {
         const match = searchResults[0];
         console.log(`Resolved SoundCloud track: "${match.title}" - Fetching direct CDN URL...`);
         const song = await scClient.getSongInfo(match.url);
-        const directUrl = await scClient.fetchStreamURL(song.streams.progressive || song.streams.hls);
-        if (directUrl) {
-          console.log(`Redirecting to SoundCloud stream URL: ${directUrl.substring(0, 80)}...`);
-          return res.redirect(directUrl);
+        // fetchStreamURL returns a plain string URL, not an object
+        const streamUrl = await scClient.fetchStreamURL(song.streams.progressive || song.streams.hls);
+        if (streamUrl && typeof streamUrl === 'string' && streamUrl.startsWith('http')) {
+          console.log(`SoundCloud stream resolved: ${streamUrl.substring(0, 80)}...`);
+          if (req.query.json === 'true') {
+            const isHls = streamUrl.includes('/hls') || streamUrl.includes('aac_96k');
+            return res.json({ url: streamUrl, isHls });
+          }
+          return res.redirect(streamUrl);
         }
       }
     } catch (e) {
@@ -412,7 +417,11 @@ app.get(['/api/stream', '/api/stream.m3u8'], async (req, res) => {
       for (const uri of workingUris.slice(0, 6)) {
         try {
           console.log(`Redirecting to Invidious proxy: ${uri}/latest_version?id=${id}&local=true`);
-          return res.redirect(`${uri}/latest_version?id=${id}&local=true`);
+          const targetUrl = `${uri}/latest_version?id=${id}&local=true`;
+          if (req.query.json === 'true') {
+            return res.json({ url: targetUrl });
+          }
+          return res.redirect(targetUrl);
         } catch (_) {}
       }
     }
@@ -429,6 +438,9 @@ app.get(['/api/stream', '/api/stream.m3u8'], async (req, res) => {
       const data = await resp.json();
       const audioStreams = data.audioStreams || [];
       if (audioStreams.length > 0) {
+        if (req.query.json === 'true') {
+          return res.json({ url: audioStreams[0].url });
+        }
         return res.redirect(audioStreams[0].url);
       }
     } catch {
