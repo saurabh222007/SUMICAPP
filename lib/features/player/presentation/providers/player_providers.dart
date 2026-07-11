@@ -153,9 +153,11 @@ class PlayerNotifier extends Notifier<PlayerState> {
       // ── Tier 2: Backend /yt-stream endpoint (yt-dlp → SoundCloud fallback) ──
       if (streamUrl == null) {
         try {
+          final encodedTitle = Uri.encodeComponent(track.title);
+          final encodedArtist = Uri.encodeComponent(track.author);
           debugPrint('[Tier2] Trying /yt-stream/${track.id} ...');
           final response = await http.get(
-            Uri.parse('${ApiConfig.baseUrl}/yt-stream/${track.id}'),
+            Uri.parse('${ApiConfig.baseUrl}/yt-stream/${track.id}?title=$encodedTitle&artist=$encodedArtist'),
           ).timeout(const Duration(seconds: 25));
           if (response.statusCode == 200) {
             final data = jsonDecode(response.body) as Map<String, dynamic>;
