@@ -12,6 +12,7 @@ import '../features/profile/presentation/screens/settings_screen.dart';
 import '../features/player/presentation/screens/player_screen.dart';
 import '../features/lyrics/presentation/screens/lyrics_screen.dart';
 import '../features/playlist/presentation/screens/playlist_detail_screen.dart';
+import '../features/piped_playback/player_screen.dart';
 import '../shared/widgets/mini_player.dart';
 
 // Key for GoRouter navigation state
@@ -33,6 +34,7 @@ abstract class AppRoutePaths {
   static const String lyrics = '/lyrics';
   static const String profile = '/profile';
   static const String settings = '/settings';
+  static const String pipedPlayer = '/piped-player';
 }
 
 /// List of Route Names for the SUMIC application.
@@ -50,6 +52,7 @@ abstract class AppRouteNames {
   static const String lyrics = 'lyrics';
   static const String profile = 'profile';
   static const String settings = 'settings';
+  static const String pipedPlayer = 'pipedPlayer';
 }
 
 /// Central GoRouter configuration.
@@ -109,6 +112,12 @@ final GoRouter appRouter = GoRouter(
       name: AppRouteNames.player,
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) => const PlayerScreen(),
+    ),
+    GoRoute(
+      path: AppRoutePaths.pipedPlayer,
+      name: AppRouteNames.pipedPlayer,
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const PipedPlayerScreen(),
     ),
     GoRoute(
       path: AppRoutePaths.playlist,

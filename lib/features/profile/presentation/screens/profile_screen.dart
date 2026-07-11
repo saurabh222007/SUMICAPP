@@ -282,6 +282,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const Divider(color: Color(0xFF494551), height: 1),
 
+                    // Piped Streamer Item
+                    ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF36343A)),
+                        child: const Icon(Icons.music_video, color: Colors.purpleAccent),
+                      ),
+                      title: Text('Piped Music Streamer', style: AppTypography.titleMedium.copyWith(color: Colors.white, fontSize: 16)),
+                      trailing: const Icon(Icons.chevron_right, color: Colors.white70),
+                      onTap: () => context.push(AppRoutePaths.pipedPlayer),
+                    ),
+                    const Divider(color: Color(0xFF494551), height: 1),
+
                     // Dynamic Theme Switch
                     ListTile(
                       leading: Container(
