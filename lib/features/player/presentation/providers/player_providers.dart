@@ -145,17 +145,15 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final encodedTitle = Uri.encodeComponent(cleanedTitle);
     final encodedArtist = Uri.encodeComponent(cleanedArtist);
 
-    // Strategy 1: Piped API (Most reliable for bypassing IP rate limits)
+    // Strategy 1: New Dart Backend Proxy
     try {
-      debugPrint('[Stream] Trying Piped API for "${track.id}"...');
-      final pipedService = PipedService();
-      final streamUrl = await pipedService.fetchAudioStream(track.id);
-      if (streamUrl != null && streamUrl.isNotEmpty) {
-        debugPrint('[Stream] Piped API resolved OK');
-        return streamUrl;
-      }
+      debugPrint('[Stream] Trying New Dart Backend for "${track.id}"...');
+      // By default points to localhost:8080 (ADB reverse will route this to PC backend)
+      final streamUrl = 'http://127.0.0.1:8080/stream?id=${track.id}';
+      debugPrint('[Stream] Using Dart Backend resolved to $streamUrl');
+      return streamUrl;
     } catch (e) {
-      debugPrint('[Stream] Piped API failed: $e');
+      debugPrint('[Stream] Dart Backend failed: $e');
     }
 
     // Strategy 2: LocalAudioProxy
