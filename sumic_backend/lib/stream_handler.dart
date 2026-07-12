@@ -109,6 +109,6 @@ class StreamHandler {
     // Fallback to first available
     bestStream ??= audioStreams.first;
     
-    return bestStream['url'] as String?;
+    return bestStream!['url'] as String?;
   }
 }
