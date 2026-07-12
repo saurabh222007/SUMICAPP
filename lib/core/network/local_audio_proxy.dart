@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class LocalAudioProxy {
+  static final LocalAudioProxy instance = LocalAudioProxy._internal();
+  LocalAudioProxy._internal();
+
   HttpServer? _server;
   final YoutubeExplode _yt = YoutubeExplode();
   int? port;

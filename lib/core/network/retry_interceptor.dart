@@ -38,7 +38,7 @@ class RetryInterceptor extends Interceptor {
 
     // Retry once if we haven't retried yet for this request
     final extra = err.requestOptions.extra;
-    final isRetried = extra['isRetried'] ?? false;
+    final isRetried = (extra['isRetried'] as bool?) ?? false;
 
     if (!isRetried && _shouldRetry(err)) {
       if (kDebugMode) {

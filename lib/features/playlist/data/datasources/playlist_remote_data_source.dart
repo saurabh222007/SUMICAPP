@@ -50,12 +50,11 @@ class PlaylistRemoteDataSourceImpl implements PlaylistRemoteDataSource {
         if (match != null) {
           final jsonStr = match.group(1);
           if (jsonStr != null) {
-            final decoded = jsonDecode(jsonStr);
-            final List<dynamic> items =
-                decoded['props']?['pageProps']?['state']?['data']?['entity']?['trackList'] ??
-                decoded['props']?['pageProps']?['state']?['data']?['entity']?['items'] ??
-                decoded['props']?['pageProps']?['state']?['data']?['entity']?['tracks']?['items'] ??
-                [];
+            final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
+            final List<dynamic> items = (decoded['props']?['pageProps']?['state']?['data']?['entity']?['trackList'] as List<dynamic>?) ??
+                (decoded['props']?['pageProps']?['state']?['data']?['entity']?['items'] as List<dynamic>?) ??
+                (decoded['props']?['pageProps']?['state']?['data']?['entity']?['tracks']?['items'] as List<dynamic>?) ??
+                <dynamic>[];
             
             final List<Map<String, String>> tracks = [];
             for (final t in items) {

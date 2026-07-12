@@ -5,13 +5,15 @@ import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 import '../../../search/domain/entities/search_track.dart';
 import '../../../../core/network/api_config.dart';
+import '../../../../core/network/local_audio_proxy.dart';
 import 'package:flutter/foundation.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 /// State representation of the audio player.
 class PlayerState {
   final SearchTrack? currentTrack;
   final bool isPlaying;
+  final bool isLoading;
+  final String? errorMessage;
   final Duration position;
   final Duration duration;
   final List<SearchTrack> queue;
@@ -20,6 +22,8 @@ class PlayerState {
   const PlayerState({
     this.currentTrack,
     this.isPlaying = false,
+    this.isLoading = false,
+    this.errorMessage,
     this.position = Duration.zero,
     this.duration = Duration.zero,
     this.queue = const [],
@@ -29,6 +33,9 @@ class PlayerState {
   PlayerState copyWith({
     SearchTrack? currentTrack,
     bool? isPlaying,
+    bool? isLoading,
+    String? errorMessage,
+    bool clearError = false,
     Duration? position,
     Duration? duration,
     List<SearchTrack>? queue,
@@ -37,6 +44,8 @@ class PlayerState {
     return PlayerState(
       currentTrack: currentTrack ?? this.currentTrack,
       isPlaying: isPlaying ?? this.isPlaying,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       position: position ?? this.position,
       duration: duration ?? this.duration,
       queue: queue ?? this.queue,
@@ -52,13 +61,14 @@ class PlayerNotifier extends Notifier<PlayerState> {
   StreamSubscription<Duration?>? _durationSubscription;
   int _consecutiveFailures = 0;
   static const int _maxConsecutiveFailures = 3;
+  int _playGeneration = 0; // Monotonic counter to cancel stale plays
 
   @override
   PlayerState build() {
     _audioPlayer = AudioPlayer();
     _audioPlayer.setVolume(1.0);
     _initAudioPlayerListeners();
-    
+
     ref.onDispose(() {
       _positionSubscription?.cancel();
       _durationSubscription?.cancel();
@@ -95,10 +105,119 @@ class PlayerNotifier extends Notifier<PlayerState> {
     });
   }
 
+  /// Cleans a YouTube title by stripping common suffixes that confuse SoundCloud search
+  /// e.g. "Adele - Rolling in the Deep (Official Music Video)" -> "Rolling in the Deep"
+  String _cleanTitle(String title) {
+    var cleaned = title;
+    final patterns = [
+      RegExp(r'\s*\(Official\s+(Music\s+)?Video\)', caseSensitive: false),
+      RegExp(r'\s*\(Official\s+Lyric\s+Video\)', caseSensitive: false),
+      RegExp(r'\s*\(Official\s+Audio\)', caseSensitive: false),
+      RegExp(r'\s*\(Lyrics?\)', caseSensitive: false),
+      RegExp(r'\s*\(Audio\)', caseSensitive: false),
+      RegExp(r'\s*\(Music\s+Video\)', caseSensitive: false),
+      RegExp(r'\s*\(Official\)', caseSensitive: false),
+      RegExp(r'\s*\[Official\s+(Music\s+)?Video\]', caseSensitive: false),
+      RegExp(r'\s*\|.*$', caseSensitive: false),
+      RegExp(r'^\s*[\w\s]+\s+-\s+', caseSensitive: false), // "Artist - " prefix
+    ];
+    for (final p in patterns) {
+      cleaned = cleaned.replaceAll(p, '');
+    }
+    return cleaned.trim();
+  }
+
+  /// Strips ft./feat./featuring credits from artist name for cleaner SoundCloud matching
+  String _cleanArtist(String artist) {
+    return artist
+        .replaceAll(RegExp(r'\s+ft\.?\s+.*$', caseSensitive: false), '')
+        .replaceAll(RegExp(r'\s+feat\.?\s+.*$', caseSensitive: false), '')
+        .replaceAll(RegExp(r'\s+featuring\s+.*$', caseSensitive: false), '')
+        .trim();
+  }
+
+  /// Resolves a working stream URL for a track by trying multiple backend strategies.
+  /// Returns null if all strategies fail.
+  Future<String?> _resolveStreamUrl(SearchTrack track) async {
+    final cleanedTitle = _cleanTitle(track.title);
+    final cleanedArtist = _cleanArtist(track.author);
+    final encodedTitle = Uri.encodeComponent(cleanedTitle);
+    final encodedArtist = Uri.encodeComponent(cleanedArtist);
+
+    // Strategy 1: LocalAudioProxy
+    if (LocalAudioProxy.instance.port != null) {
+      debugPrint('[Stream] Using LocalAudioProxy for "${track.id}"');
+      return 'http://127.0.0.1:${LocalAudioProxy.instance.port}/?id=${track.id}';
+    }
+
+    // Strategy 2: Backend SoundCloud via /api/stream?json=true (most reliable)
+    try {
+      debugPrint('[Stream] Trying /api/stream (SoundCloud) for "$cleanedTitle" by "$cleanedArtist"...');
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/api/stream?json=true&id=${track.id}&title=$encodedTitle&artist=$encodedArtist'),
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final audioUrl = data['url'] as String?;
+        if (audioUrl != null && audioUrl.isNotEmpty) {
+          final isHls = data['isHls'] == true;
+          debugPrint('[Stream] /api/stream resolved (isHls=$isHls)');
+          return audioUrl;
+        }
+      } else {
+        debugPrint('[Stream] /api/stream status=${response.statusCode}: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}');
+      }
+    } catch (err) {
+      debugPrint('[Stream] /api/stream failed: $err');
+    }
+
+    // Strategy 2: Backend yt-dlp worker /yt-stream
+    try {
+      debugPrint('[Stream] Trying /yt-stream for "${track.id}"...');
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/yt-stream/${track.id}?title=$encodedTitle&artist=$encodedArtist'),
+      ).timeout(const Duration(seconds: 25));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final audioUrl = data['audio_url'] as String?;
+        if (audioUrl != null && audioUrl.isNotEmpty) {
+          debugPrint('[Stream] /yt-stream resolved');
+          return audioUrl;
+        }
+      } else {
+        debugPrint('[Stream] /yt-stream status=${response.statusCode}');
+      }
+    } catch (err) {
+      debugPrint('[Stream] /yt-stream failed: $err');
+    }
+
+    // Strategy 3: Retry /api/stream with title-only (drops artist if it was confusing the search)
+    try {
+      debugPrint('[Stream] Retrying /api/stream with title only...');
+      final encodedTitleOnly = Uri.encodeComponent(cleanedTitle);
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/api/stream?json=true&id=${track.id}&title=$encodedTitleOnly'),
+      ).timeout(const Duration(seconds: 30));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final audioUrl = data['url'] as String?;
+        if (audioUrl != null && audioUrl.isNotEmpty) {
+          debugPrint('[Stream] /api/stream (title-only) resolved');
+          return audioUrl;
+        }
+      }
+    } catch (err) {
+      debugPrint('[Stream] /api/stream title-only failed: $err');
+    }
+
+    return null;
+  }
+
   /// Sets the queue and starts playing from the specified index.
   Future<void> setQueue(List<SearchTrack> tracks, {int startIndex = 0}) async {
     if (tracks.isEmpty) return;
-    
+
     state = state.copyWith(
       queue: tracks,
       currentIndex: startIndex,
@@ -113,7 +232,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     _consecutiveFailures = 0; // Reset on user-initiated play
     final newQueue = List<SearchTrack>.from(state.queue);
     int index = newQueue.indexWhere((t) => t.id == track.id);
-    
+
     if (index == -1) {
       newQueue.add(track);
       index = newQueue.length - 1;
@@ -123,84 +242,72 @@ class PlayerNotifier extends Notifier<PlayerState> {
       queue: newQueue,
       currentIndex: index,
       currentTrack: track,
+      isLoading: true,
+      clearError: true,
     );
 
     await _playTrack(track);
   }
 
   Future<void> _playTrack(SearchTrack track) async {
+    final generation = ++_playGeneration;
+
     try {
-      String? streamUrl;
+      final streamUrl = await _resolveStreamUrl(track);
 
-      // ── Tier 1: Client-side resolution via youtube_explode_dart ──
-      try {
-        debugPrint('[Tier1] Trying youtube_explode for ${track.id}...');
-        final yt = YoutubeExplode();
-        final manifest = await yt.videos.streamsClient.getManifest(track.id);
-        final streams = manifest.streams;
-        if (streams.isNotEmpty) {
-          final audioStream = manifest.audioOnly.isNotEmpty
-              ? manifest.audioOnly.withHighestBitrate()
-              : (manifest.muxed.isNotEmpty ? manifest.muxed.withHighestBitrate() : streams.first);
-          streamUrl = audioStream.url.toString();
-          debugPrint('[Tier1] youtube_explode resolved stream OK');
-        }
-        yt.close();
-      } catch (err) {
-        debugPrint('[Tier1] youtube_explode failed: $err');
+      // If user already started playing another track, abandon this one
+      if (generation != _playGeneration) {
+        debugPrint('[Player] Aborting stale play for ${track.id}');
+        return;
       }
 
-      // ── Tier 2: Backend /yt-stream endpoint (yt-dlp → SoundCloud fallback) ──
-      if (streamUrl == null) {
-        try {
-          final encodedTitle = Uri.encodeComponent(track.title);
-          final encodedArtist = Uri.encodeComponent(track.author);
-          debugPrint('[Tier2] Trying /yt-stream/${track.id} ...');
-          final response = await http.get(
-            Uri.parse('${ApiConfig.baseUrl}/yt-stream/${track.id}?title=$encodedTitle&artist=$encodedArtist'),
-          ).timeout(const Duration(seconds: 25));
-          if (response.statusCode == 200) {
-            final data = jsonDecode(response.body) as Map<String, dynamic>;
-            final audioUrl = data['audio_url'] as String?;
-            if (audioUrl != null && audioUrl.isNotEmpty) {
-              streamUrl = audioUrl;
-              debugPrint('[Tier2] /yt-stream resolved OK');
-            }
-          } else {
-            debugPrint('[Tier2] /yt-stream returned status ${response.statusCode}');
-          }
-        } catch (err) {
-          debugPrint('[Tier2] /yt-stream failed: $err');
-        }
-      }
-
-      // ── Tier 3: Existing SoundCloud HLS redirect via /api/stream.m3u8 ──
-      if (streamUrl == null) {
-        debugPrint('[Tier3] Falling back to /api/stream.m3u8 ...');
-        final encodedTitle = Uri.encodeComponent(track.title);
-        final encodedArtist = Uri.encodeComponent(track.author);
-        streamUrl = '${ApiConfig.baseUrl}/api/stream.m3u8?id=${track.id}&title=$encodedTitle&artist=$encodedArtist';
+      if (streamUrl == null || streamUrl.isEmpty) {
+        throw Exception('Could not resolve a playable stream URL for "${track.title}" by "${track.author}"');
       }
 
       final uri = Uri.parse(streamUrl);
-      final logLen = streamUrl.length < 80 ? streamUrl.length : 80;
-      debugPrint('[Player] Loading source: ${streamUrl.substring(0, logLen)}...');
+      final logLen = streamUrl.length < 100 ? streamUrl.length : 100;
+      debugPrint('[Player] Loading: ${streamUrl.substring(0, logLen)}...');
 
-      // just_audio handles both progressive and HLS URLs natively via AudioSource.uri()
+      // CRITICAL: Stop and clear any currently playing source first.
+      // Without this, setAudioSource can race with the previous load and
+      // the old source keeps playing.
+      await _audioPlayer.stop();
+      if (generation != _playGeneration) return;
+
+      // just_audio handles both progressive MP3 and HLS .m3u8 natively via AudioSource.uri()
       await _audioPlayer.setAudioSource(AudioSource.uri(uri));
-      _audioPlayer.play();
+      if (generation != _playGeneration) {
+        await _audioPlayer.stop();
+        return;
+      }
+
+      state = state.copyWith(isLoading: false, clearError: true);
+      await _audioPlayer.play();
       _consecutiveFailures = 0; // Reset on successful load
     } catch (e) {
-      debugPrint('Stream resolution and playback failed: $e');
+      // Race protection
+      if (generation != _playGeneration) {
+        debugPrint('[Player] Suppressing error from stale play: $e');
+        return;
+      }
+      debugPrint('[Player] Stream resolution/playback failed: $e');
       if (e.toString().contains('interrupted')) {
         return;
       }
-      _audioPlayer.stop();
-      
+      try {
+        await _audioPlayer.stop();
+      } catch (_) {}
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Couldn\'t play "${track.title}". Skipping to next...',
+      );
+
       // Guard against infinite skip loop
       _consecutiveFailures++;
       if (_consecutiveFailures < _maxConsecutiveFailures) {
-        await Future.delayed(const Duration(milliseconds: 1000));
+        await Future.delayed(const Duration(milliseconds: 1500));
         next();
       } else {
         debugPrint('[Player] Stopped auto-skip after $_maxConsecutiveFailures consecutive failures.');
@@ -212,7 +319,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
   /// Pause/Resume toggle.
   void togglePlay() {
     if (state.currentTrack == null) return;
-    
+
     if (_audioPlayer.playing) {
       _audioPlayer.pause();
     } else {
@@ -228,11 +335,13 @@ class PlayerNotifier extends Notifier<PlayerState> {
   /// Plays the next song in the queue.
   void next() {
     if (state.queue.isEmpty || state.currentIndex == -1) return;
-    
+
     final nextIndex = (state.currentIndex + 1) % state.queue.length;
     state = state.copyWith(
       currentIndex: nextIndex,
       currentTrack: state.queue[nextIndex],
+      isLoading: true,
+      clearError: true,
     );
     _playTrack(state.queue[nextIndex]);
   }
@@ -245,6 +354,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
     state = state.copyWith(
       currentIndex: prevIndex,
       currentTrack: state.queue[prevIndex],
+      isLoading: true,
+      clearError: true,
     );
     _playTrack(state.queue[prevIndex]);
   }

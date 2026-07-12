@@ -17,8 +17,8 @@ class YtStreamService {
       throw Exception('Failed to load stream metadata: status ${response.statusCode}');
     }
 
-    final data = json.decode(response.body);
-    final audioUrl = data['audio_url'];
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final audioUrl = data['audio_url'] as String?;
     if (audioUrl == null || audioUrl.isEmpty) {
       throw Exception('Audio URL not present in metadata response.');
     }
@@ -27,7 +27,7 @@ class YtStreamService {
     return AudioSource.uri(
       Uri.parse(audioUrl),
       tag: {
-        'title': data['title'] ?? 'Unknown Title',
+        'title': (data['title'] as String?) ?? 'Unknown Title',
         'duration': data['duration'] != null 
             ? Duration(seconds: (data['duration'] as num).toInt()) 
             : null,

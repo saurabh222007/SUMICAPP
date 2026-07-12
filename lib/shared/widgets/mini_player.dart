@@ -17,6 +17,7 @@ class MiniPlayer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTrack = ref.watch(playerProvider.select((s) => s.currentTrack));
     final isPlaying = ref.watch(playerProvider.select((s) => s.isPlaying));
+    final isLoading = ref.watch(playerProvider.select((s) => s.isLoading));
 
     if (currentTrack == null) {
       return const SizedBox.shrink();
@@ -96,14 +97,25 @@ class MiniPlayer extends ConsumerWidget {
                       onPressed: () {},
                     ),
                     IconButton(
-                      icon: Icon(
-                        isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: AppColors.primary,
-                        size: 28,
-                      ),
-                      onPressed: () {
-                        ref.read(playerProvider.notifier).togglePlay();
-                      },
+                      icon: isLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: AppColors.primary,
+                              ),
+                            )
+                          : Icon(
+                              isPlaying ? Icons.pause : Icons.play_arrow,
+                              color: AppColors.primary,
+                              size: 28,
+                            ),
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              ref.read(playerProvider.notifier).togglePlay();
+                            },
                     ),
                   ],
                 ),

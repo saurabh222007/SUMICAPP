@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audio_session/audio_session.dart';
 import '../core/providers/core_providers.dart';
 import '../core/services/logger_service.dart';
+import '../core/network/local_audio_proxy.dart';
 
 /// Pre-launch bootstrapping routines.
 /// Initializes third-party SDKs, storage, and platform bindings.
@@ -25,6 +26,14 @@ abstract class AppBootstrap {
         AppLogger.i('AudioSession configured for music playback.');
       } catch (audioErr) {
         AppLogger.e('Failed to configure AudioSession', audioErr);
+      }
+
+      // Start LocalAudioProxy
+      try {
+        await LocalAudioProxy.instance.start();
+        AppLogger.i('LocalAudioProxy started on port ${LocalAudioProxy.instance.port}.');
+      } catch (e) {
+        AppLogger.e('Failed to start LocalAudioProxy', e);
       }
 
       // 3. Create the ProviderContainer with overrides

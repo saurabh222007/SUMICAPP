@@ -174,13 +174,29 @@ final GoRouter appRouter = GoRouter(
 );
 
 /// Persistent Layout shell containing the bottom navigation bar and global Mini Player.
-class _AppNavigationShell extends StatelessWidget {
+class _AppNavigationShell extends ConsumerWidget {
   final Widget child;
 
   const _AppNavigationShell({required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Show a snackbar whenever the player reports a load error.
+    ref.listen<String?>(playerProvider.select((s) => s.errorMessage), (prev, next) {
+      if (next != null && next.isNotEmpty && prev != next) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(next, style: const TextStyle(color: Colors.white)),
+              backgroundColor: const Color(0xFF2A1A1F),
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+      }
+    });
+
     // Calculates currently selected tab index based on the URI
     final String location = GoRouterState.of(context).matchedLocation;
     int currentIndex = 0;
