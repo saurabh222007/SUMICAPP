@@ -50,8 +50,8 @@ class PipedSong {
 
 /// Service class interfacing with Piped public API instances with failover support.
 class PipedService {
-  static const String _primaryUrl = 'https://kavin.rocks';
-  static const String _fallbackUrl = 'https://piped.yt';
+  static const String _primaryUrl = 'https://pipedapi.kavin.rocks';
+  static const String _fallbackUrl = 'https://pipedapi.smnz.de';
 
   /// Searches for a song by query on Piped API.
   /// Automatically switches to the fallback instance if the primary fails.

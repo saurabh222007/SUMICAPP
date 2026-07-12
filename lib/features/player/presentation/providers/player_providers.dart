@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../../../search/domain/entities/search_track.dart';
 import '../../../../core/network/api_config.dart';
 import '../../../../core/network/local_audio_proxy.dart';
+import '../../../piped_playback/piped_service.dart';
 import 'package:flutter/foundation.dart';
 
 /// State representation of the audio player.
@@ -144,7 +145,20 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final encodedTitle = Uri.encodeComponent(cleanedTitle);
     final encodedArtist = Uri.encodeComponent(cleanedArtist);
 
-    // Strategy 1: LocalAudioProxy
+    // Strategy 1: Piped API (Most reliable for bypassing IP rate limits)
+    try {
+      debugPrint('[Stream] Trying Piped API for "${track.id}"...');
+      final pipedService = PipedService();
+      final streamUrl = await pipedService.fetchAudioStream(track.id);
+      if (streamUrl != null && streamUrl.isNotEmpty) {
+        debugPrint('[Stream] Piped API resolved OK');
+        return streamUrl;
+      }
+    } catch (e) {
+      debugPrint('[Stream] Piped API failed: $e');
+    }
+
+    // Strategy 2: LocalAudioProxy
     if (LocalAudioProxy.instance.port != null) {
       debugPrint('[Stream] Using LocalAudioProxy for "${track.id}"');
       return 'http://127.0.0.1:${LocalAudioProxy.instance.port}/?id=${track.id}';
