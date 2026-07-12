@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shelf/shelf.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'dart:convert';
 
 class StreamHandler {
-  static const String _primaryUrl = 'https://pipedapi.kavin.rocks';
-  static const String _fallbackUrl = 'https://pipedapi.smnz.de';
-
   Future<Response> handleStream(Request request) async {
     final id = request.url.queryParameters['id'];
     if (id == null || id.isEmpty) {
@@ -38,12 +36,10 @@ class StreamHandler {
       // Pass the response stream directly to the client
       final responseHeaders = <String, String>{};
       streamResponse.headers.forEach((key, value) {
-        // Exclude specific headers that shelf handles automatically or shouldn't be forwarded
         if (key.toLowerCase() != 'transfer-encoding' && key.toLowerCase() != 'content-encoding') {
           responseHeaders[key] = value;
         }
       });
-      // Force permissive CORS
       responseHeaders['Access-Control-Allow-Origin'] = '*';
 
       return Response(
@@ -59,24 +55,40 @@ class StreamHandler {
   }
 
   Future<String?> _fetchAudioStream(String videoId) async {
-    final String path = '/streams/$videoId';
-
+    // 1. Try youtube_explode_dart with different clients to bypass rate-limiting
     try {
-      final url = await _executeStream('$_primaryUrl$path');
-      if (url != null) return url;
+      final yt = YoutubeExplode();
+      print('[StreamHandler] Trying youtube_explode_dart for $videoId');
+      
+      // Try IOS client first which often bypasses restrictions
+      final manifest = await yt.videos.streamsClient.getManifest(
+        videoId,
+        ytClients: [YoutubeApiClient.ios, YoutubeApiClient.tv, YoutubeApiClient.mweb],
+      );
+      
+      final streamInfo = manifest.audioOnly.withHighestBitrate();
+      yt.close();
+      print('[StreamHandler] youtube_explode_dart resolved successfully!');
+      return streamInfo.url.toString();
     } catch (e) {
-      print('[StreamHandler] Primary streaming failed: $e. Trying fallback...');
+      print('[StreamHandler] youtube_explode_dart failed: $e. Trying Piped fallback...');
     }
 
-    try {
-      return await _executeStream('$_fallbackUrl$path');
-    } catch (e) {
-      print('[StreamHandler] Fallback streaming failed: $e');
-      return null;
+    // 2. Try Piped instances as fallback
+    final instances = ['https://pipedapi.kavin.rocks', 'https://pipedapi.smnz.de'];
+    for (var inst in instances) {
+      try {
+        final url = await _executePipedStream('$inst/streams/$videoId');
+        if (url != null) return url;
+      } catch (e) {
+        print('[StreamHandler] Piped $inst failed: $e');
+      }
     }
+    
+    return null;
   }
 
-  Future<String?> _executeStream(String urlString) async {
+  Future<String?> _executePipedStream(String urlString) async {
     final response = await http.get(
       Uri.parse(urlString),
       headers: {
@@ -96,7 +108,6 @@ class StreamHandler {
       return null;
     }
 
-    // Try to get high quality m4a/aac stream first
     Map<String, dynamic>? bestStream;
     for (var stream in audioStreams) {
       if (stream['mimeType']?.toString().contains('audio/mp4') == true ||
@@ -106,9 +117,7 @@ class StreamHandler {
       }
     }
     
-    // Fallback to first available
     bestStream ??= audioStreams.first;
-    
     return bestStream!['url'] as String?;
   }
 }
