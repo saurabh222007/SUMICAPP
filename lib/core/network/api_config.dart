@@ -1,3 +1,3 @@
 class ApiConfig {
-  static const String baseUrl = 'https://sumicapp.onrender.com';
+  static const String baseUrl = 'http://10.0.2.2:8000'; // Rust Backend
 }
