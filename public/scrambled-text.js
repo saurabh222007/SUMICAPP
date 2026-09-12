@@ -36,7 +36,7 @@ export function initScrambledText(containerOrId, options = {}) {
         transition: color 0.15s ease;
       }
       .scrambled-char.scrambling {
-        color: #1db954;
+        color: #D96548;
       }
     `;
     document.head.appendChild(style);

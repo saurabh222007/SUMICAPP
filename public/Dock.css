@@ -1,62 +1,199 @@
-/* Enhanced CSS for 60 FPS mobile performance optimization */
+/* ═══════════════════════════════════════════════════════════════════
+   SUMIC — TACTILE HI-FI CONTROL STRIP (DOCK)
+   Precision Deck, Monochrome-First with Analog Signal Accent
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* Force GPU acceleration on container */
-.dock-shell{position:fixed;left:50%;bottom:calc(var(--npH) + 16px);transform:translateX(-50%);width:min(100%,980px);display:flex;justify-content:center;pointer-events:none;z-index:30;padding:0 14px;will-change:transform;transform:translate3d(-50%,0,0)}
+/* Force GPU acceleration on container - Hidden on desktop to unify with floating Hi-Fi console */
+.dock-shell {
+  display: none !important;
+}
 
-/* Mobile dock positioning – sits below the mini npbar */
+/* Mobile dock positioning – sits just above bottom edge */
 @media (max-width: 768px) {
-  .dock-shell { bottom: 12px; }
+  .dock-shell {
+    bottom: 12px;
+  }
 }
 
-/* Very small screens – reduce dock item size */
+/* Very small screens */
 @media (max-width: 360px) {
-  .dock-item { width: 44px; height: 44px; border-radius: 12px; }
-  .dock-panel { gap: 0.5rem; padding: 0.5rem 0.6rem 0.6rem; border-radius: 16px; }
-  .dock-icon { font-size: 0.95rem; }
+  .dock-item {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-xs, 2px);
+  }
+  .dock-panel {
+    gap: 0.4rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--r-sm, 4px);
+  }
+  .dock-icon {
+    font-size: 0.95rem;
+  }
 }
 
-.dock-outer{pointer-events:auto;display:flex;max-width:100%;align-items:center;justify-content:center;will-change:height;backface-visibility:hidden;perspective:1000px;contain:layout style paint}
+.dock-outer {
+  pointer-events: auto;
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  will-change: height;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  contain: layout style paint;
+}
 
-.dock-panel{position:relative;display:flex;align-items:flex-end;width:fit-content;gap:1rem;border-radius:22px;background:linear-gradient(180deg,rgba(18,18,18,.95),rgba(12,12,12,.92));border:1px solid rgba(29,185,84,.14);padding:0.8rem 1rem 1rem;backdrop-filter:blur(24px);box-shadow:0 18px 44px rgba(0,0,0,.34);transform:translate3d(0,0,0);will-change:transform;contain:layout style}
+/* Hi-Fi Switchboard Chassis */
+.dock-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  gap: 0.5rem;
+  border-radius: var(--r-sm, 4px);
+  background: var(--sumic-charcoal, #121212);
+  border: 1px solid var(--sumic-line, #2E2E2E);
+  padding: 0.5rem 0.8rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  contain: layout style;
+}
 
-/* Enhanced mobile-specific optimizations */
-.dock-panel.mobile{gap:0.75rem;padding:0.6rem 0.8rem 0.8rem;backdrop-filter:blur(20px);border-radius:20px;transform:translate3d(0,0,0)}
-.dock-panel.desktop{gap:1rem;padding:0.8rem 1rem 1rem}
+.dock-panel.mobile {
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--r-xs, 2px);
+  transform: translate3d(0, 0, 0);
+}
 
-.dock-item{position:relative;display:inline-flex;align-items:center;justify-content:center;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 26px rgba(0,0,0,.2);cursor:pointer;outline:none;width:52px;height:52px;
-  /* 60 FPS optimization properties */
-  will-change:transform,filter,box-shadow;
-  backface-visibility:hidden;
-  transform:translate3d(0,0,0);
-  contain:layout style paint;
-  /* Hardware-accelerated transitions */
-  transition:border-color var(--anim-fast) var(--ease-out),background var(--anim-fast) var(--ease-out)}
+.dock-panel.desktop {
+  gap: 0.6rem;
+  padding: 0.5rem 0.8rem;
+}
 
-/* Enhanced hover states with improved easing */
-.dock-item:hover{border-color:rgba(29,185,84,.32);background:linear-gradient(180deg,rgba(29,185,84,.16),rgba(29,185,84,.08))}
+/* Tactile Control Unit */
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs, 2px);
+  background: var(--sumic-graphite, #181818);
+  border: 1px solid var(--sumic-line, #2E2E2E);
+  cursor: pointer;
+  outline: none;
+  width: 48px;
+  height: 48px;
+  will-change: transform, filter, box-shadow;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  contain: layout style paint;
+  transition: border-color var(--anim-fast, 150ms ease), background var(--anim-fast, 150ms ease);
+}
 
-/* Mobile-specific touch states with performance optimization */
-.dock-item.pressed{transform:scale3d(0.90,0.90,1) translate3d(0,0,0)}
-.dock-item.active{border-color:rgba(29,185,84,.45);background:linear-gradient(180deg,rgba(29,185,84,.2),rgba(29,185,84,.1))}
+/* Physical tactile hover & active */
+.dock-item:hover {
+  border-color: var(--sumic-silver, #B8B8B8);
+  background: var(--sumic-slate, #222222);
+}
 
-/* Focus states for accessibility */
-.dock-item:focus-visible{outline:2px solid rgba(29,185,84,.45);outline-offset:2px}
+.dock-item.pressed {
+  transform: scale3d(0.94, 0.94, 1) translate3d(0, 0, 0);
+  background: var(--sumic-surface-hover, #2A2A2A);
+}
 
-/* Performance optimization for touch devices */
+.dock-item.active {
+  border-color: var(--sumic-paper, #F4F2EC);
+  background: var(--sumic-slate, #222222);
+}
+
+.dock-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--sumic-signal, #D96548);
+}
+
+/* Focus for accessibility */
+.dock-item:focus-visible {
+  outline: 2px solid var(--sumic-signal, #D96548);
+  outline-offset: 2px;
+}
+
 @media (pointer: coarse) {
-  .dock-item{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-  .dock-panel{gap:0.75rem;padding:0.6rem 0.8rem 0.8rem}
+  .dock-item {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .dock-panel {
+    gap: 0.4rem;
+    padding: 0.4rem 0.6rem;
+  }
 }
 
-/* Reduce motion for accessibility while maintaining performance */
 @media (prefers-reduced-motion: reduce) {
-  .dock-item{transition:border-color 0.1s ease,background 0.1s ease}
-  .dock-outer{will-change:auto}
-  .dock-panel{will-change:auto}
+  .dock-item {
+    transition: border-color 0.1s ease, background 0.1s ease;
+  }
+  .dock-outer, .dock-panel {
+    will-change: auto;
+  }
 }
 
-.dock-icon{display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.15rem;will-change:color;backface-visibility:hidden;transform:translate3d(0,0,0);transition:color var(--anim-fast) var(--ease-out)}
-.dock-item:hover .dock-icon{color:var(--primary)}
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sumic-silver, #B8B8B8);
+  font-size: 1.05rem;
+  will-change: color;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  transition: color var(--anim-fast, 150ms ease);
+}
 
-.dock-label{position:absolute;top:-1.35rem;left:50%;transform:translate3d(-50%,0,0);white-space:nowrap;border-radius:999px;background:rgba(18,18,18,.96);padding:0.4rem 0.8rem;font-size:0.72rem;color:#fff;border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 24px rgba(0,0,0,.28);font-weight:600;opacity:0;pointer-events:none;transition:opacity var(--anim-fast) var(--ease-out);letter-spacing:0.2px;will-change:opacity;backface-visibility:hidden;contain:layout style}
-.dock-item:hover .dock-label{opacity:1}
+.dock-item:hover .dock-icon {
+  color: var(--sumic-paper, #F4F2EC);
+}
+
+.dock-item.active .dock-icon {
+  color: var(--sumic-white, #FFFFFF);
+}
+
+/* Precision Technical Label Tag */
+.dock-label {
+  position: absolute;
+  top: -1.6rem;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  white-space: nowrap;
+  border-radius: var(--r-none, 0px);
+  background: var(--sumic-charcoal, #121212);
+  padding: 0.2rem 0.5rem;
+  font-family: var(--font-tech, 'Orbitron', monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sumic-paper, #F4F2EC);
+  border: 1px solid var(--sumic-line, #2E2E2E);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--anim-fast, 150ms ease);
+  will-change: opacity;
+  backface-visibility: hidden;
+  contain: layout style;
+}
+
+.dock-item:hover .dock-label {
+  opacity: 1;
+}

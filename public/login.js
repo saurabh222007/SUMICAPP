@@ -8,18 +8,18 @@ import { initScrambledText } from './scrambled-text.js';
 
   // Initialize the premium SoftAurora background with performance‑friendly settings
   initSoftAurora('auroraBg', {
-    speed: 0.5,
+    speed: 0.3,
     scale: 1.2,
-    brightness: 1.0,
-    color1: '#f7f7f7',
-    color2: '#e100ff',
-    noiseFrequency: 0.5, // further reduced to cut shader workload
-    noiseAmplitude: 0.5, // lower amplitude for less computation
+    brightness: 0.8,
+    color1: '#181818',
+    color2: '#262626',
+    noiseFrequency: 0.5,
+    noiseAmplitude: 0.4,
     bandHeight: 0.5,
     bandSpread: 0.5,
     octaveDecay: 0.15,
     layerOffset: 0.0,
-    colorSpeed: 0.8,
+    colorSpeed: 0.6,
     enableMouseInteraction: true,
     mouseInfluence: 0.2
   });
@@ -31,18 +31,17 @@ import { initScrambledText } from './scrambled-text.js';
     auroraCanvas.style.pointerEvents = 'none';
   }
 
-
   const isMobileLogin = window.innerWidth <= 1023 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
   if (!isMobileLogin) {
-    // Initialize TrueFocus component (music, sumic.)
+    // Initialize TrueFocus component
     initTrueFocus('trueFocusContainer', {
-      sentence: 'music, sumic.',
+      sentence: 'music, redefined.',
       separator: ' ',
       manualMode: false,
       blurAmount: 5,
-      borderColor: '#1db954',
-      glowColor: 'rgba(29, 185, 84, 0.6)',
+      borderColor: '#D96548',
+      glowColor: 'rgba(217, 101, 72, 0.4)',
       animationDuration: 0.5,
       pauseBetweenAnimations: 1.0
     });
@@ -53,7 +52,7 @@ import { initScrambledText } from './scrambled-text.js';
       duration: 1.2,
       speed: 0.5,
       scrambleChars: '.:',
-      text: 'Sumic redefines how you listen. A distraction-free music streaming experience designed for audiophiles, dreamers, and curators. Built for absolute robustness, seamless stability, and reliable performance.'
+      text: 'A late-night listening room built for audiophiles, dreamers, and curators. Pure sound, archival records, and zero distractions.'
     });
   }
 
@@ -135,4 +134,25 @@ import { initScrambledText } from './scrambled-text.js';
       setUser({ name: 'Guest', email: '', guest: true });
     });
   }
+  // Fetch latest APK download URL and update button
+  function fetchLatestApk() {
+    fetch('https://api.github.com/repos/saurabh222007/sumic/releases/latest')
+      .then(response => response.json())
+      .then(data => {
+        if (!data || !data.assets) return;
+        const apkAsset = data.assets.find(a => a.name && a.name.endsWith('.apk'));
+        if (apkAsset && apkAsset.browser_download_url) {
+          const btn = document.getElementById('apkDownloadBtn');
+          if (btn) btn.href = apkAsset.browser_download_url;
+        }
+        // Update footer with version info
+        if (data.tag_name) {
+          const footer = document.querySelector('#loginApkAd .apk-ad-sub');
+          if (footer) footer.textContent = 'by Saurabh222007 · ' + data.tag_name;
+        }
+      })
+      .catch(err => console.error('Failed to fetch APK release:', err));
+  }
+  // Invoke on load
+  fetchLatestApk();
 })();

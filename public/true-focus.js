@@ -12,8 +12,8 @@ export function initTrueFocus(containerOrId, options = {}) {
     separator: ' ',
     manualMode: false,
     blurAmount: 5,
-    borderColor: '#1db954',
-    glowColor: 'rgba(29, 185, 84, 0.6)',
+    borderColor: '#D96548',
+    glowColor: 'rgba(217, 101, 72, 0.4)',
     animationDuration: 0.5,
     pauseBetweenAnimations: 1.0
   }, options);
@@ -68,9 +68,9 @@ export function initTrueFocus(containerOrId, options = {}) {
         position: absolute;
         width: 1rem;
         height: 1rem;
-        border: 3px solid var(--border-color, #1db954);
-        filter: drop-shadow(0px 0px 6px var(--glow-color, rgba(29, 185, 84, 0.6)));
-        border-radius: 3px;
+        border: 2px solid var(--border-color, #D96548);
+        filter: drop-shadow(0px 0px 6px var(--glow-color, rgba(217, 101, 72, 0.4)));
+        border-radius: 2px;
       }
       .focus-frame .top-left {
         top: -8px;

@@ -3,134 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sumic – Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231db954'/%3E%3Cstop offset='100%25' stop-color='%231ed760'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='20' y='35' width='8' height='30' rx='4' fill='url(%23grad)'/%3E%3Crect x='35' y='20' width='8' height='60' rx='4' fill='url(%23grad)'/%3E%3Crect x='50' y='10' width='8' height='80' rx='4' fill='url(%23grad)'/%3E%3Crect x='65' y='25' width='8' height='50' rx='4' fill='url(%23grad)'/%3E%3Crect x='80' y='40' width='8' height='20' rx='4' fill='url(%23grad)'/%3E%3C/svg%3E">
+  <title>Sumic — The Listening Room</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="logo_app_icon.svg">
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .auth-shell {
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      padding: 24px !important;
-    }
-    .auth-split-container {
-      display: flex;
-      width: min(1200px, 95%);
-      height: auto;
-      background: rgba(20, 20, 25, 0.45);
-      backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 32px;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      position: relative;
-      z-index: 10;
-      animation: authCardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      opacity: 0;
-      transform: translateY(20px);
-      overflow: hidden;
-      box-sizing: border-box;
-    }
-    
-    .auth-left-pane {
-      flex: 0.9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      z-index: 10;
-      position: relative;
-      box-sizing: border-box;
-    }
-    
-    .auth-right-pane {
-      flex: 1.1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      z-index: 10;
-      position: relative;
-      border-left: 1px solid rgba(255, 255, 255, 0.06);
-      box-sizing: border-box;
-    }
-    
-    .auth-card, .auth-promo-card {
-      background: transparent !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      border: none !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      width: 100% !important;
-      animation: none !important;
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    
-    .auth-promo-card {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 30px;
-      text-align: left;
-    }
-    
-    @media (min-width: 1024px) {
-      .auth-split-container {
-        height: 600px;
-      }
-      .auth-card {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+  <link rel="stylesheet" href="card-nav.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "postprocessing": "https://unpkg.com/postprocessing@6.33.5/build/postprocessing.esm.js"
       }
     }
-    
-    @media (max-width: 1023px) {
-      .auth-split-container {
-        flex-direction: column;
-        width: min(480px, 95%);
-        height: auto;
-      }
-      .auth-right-pane {
-        display: none;
-      }
-      .auth-left-pane {
-        width: 100%;
-        padding: 36px 24px;
-      }
-    }
-  </style>
+  </script>
 </head>
 <body>
   <div class="auth-shell" id="authShell">
-    <div id="auroraBg" style="position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;"></div>
-    <div class="auth-glow-1"></div>
-    <div class="auth-glow-2"></div>
+    <div class="dither-container" id="ditherBg"></div>
     
     <div class="auth-split-container">
       <!-- Left side: Login card -->
       <div class="auth-left-pane">
         <div class="auth-card">
-          <div class="auth-brand" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; margin-bottom: 16px !important;">
-            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 16px; margin-bottom: 6px;">
-              <div class="brand-logo" id="metaballsLogo" style="width: 96px; height: 96px; flex-shrink: 0; background: transparent;"></div>
-              <div class="brand-title" style="margin: 0;"><span>Su</span>mic</div>
+          <div class="auth-brand" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 14px; margin-bottom: 8px;">
+              <div class="brand-logo sumic-logo-container" style="width: 52px; height: 52px; flex-shrink: 0; background: var(--sumic-graphite); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--sumic-line);">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 32px; height: 32px;">
+                  <path d="M 30.909,30.909 A 27,27 0 0,1 69.091,30.909" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
+                  <path d="M 76.080,43.012 A 27,27 0 0,1 56.988,76.080" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
+                  <path d="M 43.012,76.080 A 27,27 0 0,1 23.920,43.012" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
+                </svg>
+              </div>
+              <div class="brand-title" style="margin: 0; font-size: 1.4rem;"><span>SU</span>MIC</div>
             </div>
-            <div class="brand-sub">Made by <i class="fas fa-heart" style="color: #ff4757; font-size: 0.75rem;"></i> by Someone!</div>
+            <div class="brand-sub">music, redefined</div>
           </div>
-          <h2 style="margin: 0 0 8px;">Sign in for a tailored soundtrack</h2>
-          <p style="margin: 0 0 16px;">Use your name and email, or jump in as a guest and start listening instantly.</p>
+          <div class="home-apk-ad" id="loginApkAd">
+            <img src="logo_app_icon.svg" alt="Sumic" />
+            <div class="home-apk-ad-info">
+              <div class="apk-ad-title">Download Android App</div>
+              <div class="apk-ad-sub">by Saurabh222007</div>
+            </div>
+            <a id="apkDownloadBtn" class="apk-download-btn" href="#" target="_blank">
+              <i class="fas fa-download"></i> Get APK
+            </a>
+          </div>
+          <h2>Enter the listening room.</h2>
+          <p>Keep your listening close. Use your name and email, or enter directly as a guest.</p>
           <form class="auth-form" id="loginForm">
             <label for="userName">Name</label>
-            <input id="userName" name="name" type="text" placeholder="Ava" autocomplete="name">
+            <input id="userName" name="name" type="text" placeholder="Curator" autocomplete="name">
             <label for="userEmail">Email</label>
-            <input id="userEmail" name="email" type="email" placeholder="ava@email.com" autocomplete="email">
+            <input id="userEmail" name="email" type="email" placeholder="curator@sumic.audio" autocomplete="email">
             <div class="auth-actions">
-              <button class="auth-btn primary" type="submit">Continue</button>
+              <button class="auth-btn primary" type="submit">Enter Room</button>
               <button class="auth-btn secondary" id="guestBtn" type="button">Continue as guest</button>
             </div>
           </form>
@@ -147,7 +74,22 @@
     </div>
   </div>
 
-  <script src="metaballs-logo.js"></script>
   <script type="module" src="login.js"></script>
+  <script type="module">
+    import { initDither } from './dither-bg.js';
+    const ditherContainer = document.getElementById('ditherBg');
+    if (ditherContainer) {
+      window.sumicDither = initDither(ditherContainer, {
+        waveSpeed: 0.04,
+        waveFrequency: 2.5,
+        waveAmplitude: 0.3,
+        waveColor: [0.12, 0.12, 0.12], // Quiet monochrome graphite wave
+        colorNum: 4,
+        pixelSize: 2,
+        enableMouseInteraction: true,
+        mouseRadius: 1
+      });
+    }
+  </script>
 </body>
 </html>

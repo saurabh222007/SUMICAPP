@@ -122,75 +122,177 @@
   });
 
   // Real songs with verified YouTube IDs
+  // Rich genre-wise song library with verified YouTube IDs and zero duplication
   const homeData = {
-    trending: [
-      { title: 'Blinding Lights', artist: 'The Weeknd', videoId: '4NRXx6U8ABQ', accent: 'linear-gradient(135deg, #ff6b6b, #8b5cf6)' },
-      { title: 'Shape of You', artist: 'Ed Sheeran', videoId: 'JGwWNGJdvx8', accent: 'linear-gradient(135deg, #4f46e5, #06b6d4)' },
-      { title: 'Levitating', artist: 'Dua Lipa', videoId: 'TUVcZfQe-Kw', accent: 'linear-gradient(135deg, #f59e0b, #fb7185)' },
-      { title: 'Stay', artist: 'The Kid LAROI & Justin Bieber', videoId: 'kTJczUoc26U', accent: 'linear-gradient(135deg, #14b8a6, #0f766e)' },
-      { title: 'As It Was', artist: 'Harry Styles', videoId: 'H5v3kku4y6Q', accent: 'linear-gradient(135deg, #ef4444, #7c3aed)' },
-      { title: 'Anti-Hero', artist: 'Taylor Swift', videoId: 'b1kbLwvqugk', accent: 'linear-gradient(135deg, #2563eb, #38bdf8)' },
-      { title: 'Flowers', artist: 'Miley Cyrus', videoId: 'G7KNmW9a75Y', accent: 'linear-gradient(135deg, #f97316, #fde68a)' },
-      { title: 'Calm Down', artist: 'Rema & Selena Gomez', videoId: 'WcYOCfyGSiU', accent: 'linear-gradient(135deg, #4f46e5, #6366f1)' },
-    ],
-    recent: [
-      { title: 'Blinding Lights', artist: 'The Weeknd', time: '2h ago', videoId: '4NRXx6U8ABQ', accent: 'linear-gradient(135deg, #ff6b6b, #8b5cf6)' },
-      { title: 'Levitating', artist: 'Dua Lipa', time: 'Yesterday', videoId: 'TUVcZfQe-Kw', accent: 'linear-gradient(135deg, #f59e0b, #fb7185)' },
-      { title: 'As It Was', artist: 'Harry Styles', time: '3 days ago', videoId: 'H5v3kku4y6Q', accent: 'linear-gradient(135deg, #ef4444, #7c3aed)' },
-      { title: 'Anti-Hero', artist: 'Taylor Swift', time: '1 week ago', videoId: 'b1kbLwvqugk', accent: 'linear-gradient(135deg, #2563eb, #38bdf8)' },
+    hero: {
+      tag: 'CURATED PLAYLIST',
+      title: 'R&B Hits',
+      subtitle: 'The Weeknd, Beyoncé, Usher, SZA, Mario, Frank Ocean, Daniel Caesar, Giveon',
+      likes: '50,056 Likes',
+      trackCount: '213 Songs',
+      duration: '13 hr 7 min',
+      videoId: '4NRXx6U8ABQ', // Blinding Lights
+      artist: 'The Weeknd',
+      artistImage: 'https://img.youtube.com/vi/4NRXx6U8ABQ/maxresdefault.jpg'
+    },
+    genres: [
+      {
+        id: 'rnb',
+        title: 'R&B Hits & Soul',
+        subtitle: 'Velvet vocals, dark basslines and timeless late-night rhythms',
+        tracks: [
+          { title: 'Blinding Lights', artist: 'The Weeknd', videoId: '4NRXx6U8ABQ', tag: 'R&B' },
+          { title: 'Die For You', artist: 'The Weeknd', videoId: 'uPD0QOGTmMI', tag: 'R&B' },
+          { title: 'Starboy', artist: 'The Weeknd ft. Daft Punk', videoId: 'AJtDXIazrMo', tag: 'R&B' },
+          { title: 'Save Your Tears', artist: 'The Weeknd', videoId: 'LIIDh-qI9oI', tag: 'R&B' },
+          { title: 'Earned It', artist: 'The Weeknd', videoId: 'waU75jdUnYw', tag: 'Soul' },
+          { title: "Can't Feel My Face", artist: 'The Weeknd', videoId: 'dqt8Z1k0oWQ', tag: 'R&B' }
+        ]
+      },
+      {
+        id: 'pop',
+        title: 'Pop & Global Chartbusters',
+        subtitle: 'The biggest anthems streaming across global charts right now',
+        tracks: [
+          { title: 'Levitating', artist: 'Dua Lipa', videoId: 'TUVcZfQe-Kw', tag: 'Pop' },
+          { title: "Don't Start Now", artist: 'Dua Lipa', videoId: 'oygrmJFkg68', tag: 'Pop' },
+          { title: 'Shape of You', artist: 'Ed Sheeran', videoId: 'JGwWNGJdvx8', tag: 'Pop' },
+          { title: 'Flowers', artist: 'Miley Cyrus', videoId: 'G7KNmW9a75Y', tag: 'Pop' },
+          { title: 'As It Was', artist: 'Harry Styles', videoId: 'H5v3kku4y6Q', tag: 'Pop' },
+          { title: 'Cruel Summer', artist: 'Taylor Swift', videoId: 'ic8j13piAhQ', tag: 'Pop' },
+          { title: 'Calm Down', artist: 'Rema & Selena Gomez', videoId: 'WcYOCfyGSiU', tag: 'Afropop' },
+          { title: 'Anti-Hero', artist: 'Taylor Swift', videoId: 'b1kbLwvqugk', tag: 'Pop' }
+        ]
+      },
+      {
+        id: 'hiphop',
+        title: 'Hip-Hop & Trap Energy',
+        subtitle: 'Heavy 808s, chart-topping verses and modern hip-hop heat',
+        tracks: [
+          { title: 'Stay', artist: 'The Kid LAROI & Justin Bieber', videoId: 'kTJczUoc26U', tag: 'Hip-Hop' },
+          { title: 'Sunflower', artist: 'Post Malone & Swae Lee', videoId: 'ApXoWvfEYVU', tag: 'Hip-Hop' },
+          { title: 'Industry Baby', artist: 'Lil Nas X & Jack Harlow', videoId: 'UTHLKHL_whs', tag: 'Trap' },
+          { title: 'Rockstar', artist: 'Post Malone ft. 21 Savage', videoId: 'UceaB440i45', tag: 'Trap' },
+          { title: 'Circles', artist: 'Post Malone', videoId: 'wXhTHyIgQ_U', tag: 'Hip-Hop' },
+          { title: "God's Plan", artist: 'Drake', videoId: 'xpVfcZ0ZcFM', tag: 'Hip-Hop' }
+        ]
+      },
+      {
+        id: 'indie',
+        title: 'Indie, Alternative & Neo-Folk',
+        subtitle: 'Organic acoustics, dreamy textures and heartfelt melodies',
+        tracks: [
+          { title: 'Watermelon Sugar', artist: 'Harry Styles', videoId: 'E07s5ZYygMg', tag: 'Indie' },
+          { title: 'Heat Waves', artist: 'Glass Animals', videoId: 'mRD0-GxqHVo', tag: 'Alt-Pop' },
+          { title: 'Sweater Weather', artist: 'The Neighbourhood', videoId: 'GCdwKhTtNNw', tag: 'Indie' },
+          { title: 'Somebody That I Used To Know', artist: 'Gotye', videoId: '8UVNT4wvIGY', tag: 'Indie' },
+          { title: 'Riptide', artist: 'Vance Joy', videoId: 'uJ_1HMAGb4k', tag: 'Folk' },
+          { title: 'Take Me To Church', artist: 'Hozier', videoId: 'PVjiKRfKpPI', tag: 'Indie Rock' }
+        ]
+      },
+      {
+        id: 'electronic',
+        title: 'Electronic, House & Dance',
+        subtitle: 'Club energy, dynamic drops and pulse-quickening festival anthems',
+        tracks: [
+          { title: 'Wake Me Up', artist: 'Avicii', videoId: 'IcrbM1l_BoI', tag: 'EDM' },
+          { title: 'Titanium', artist: 'David Guetta ft. Sia', videoId: 'JRfuAukYTKg', tag: 'Dance' },
+          { title: 'Closer', artist: 'The Chainsmokers ft. Halsey', videoId: 'PT2_F-1esPk', tag: 'Electro' },
+          { title: 'Midnight City', artist: 'M83', videoId: 'dX3k_QDnzHE', tag: 'Synth' },
+          { title: 'Lean On', artist: 'Major Lazer & DJ Snake', videoId: 'YqeW9_5kURI', tag: 'Dance' },
+          { title: 'One Kiss', artist: 'Calvin Harris & Dua Lipa', videoId: 'DkeiKbqa02g', tag: 'House' }
+        ]
+      },
+      {
+        id: 'lofi',
+        title: 'Lo-Fi, Focus & Late Night Soundtracks',
+        subtitle: 'Chill analog beats, soft vinyl crackle and deep work frequencies',
+        tracks: [
+          { title: 'Focus Flow', artist: 'Lofi Fruits Music', videoId: 'jfKfPfyJRdk', tag: 'Lo-Fi' },
+          { title: 'Night Drive', artist: 'Synthwave Soundscapes', videoId: '4xDzrJKXOOY', tag: 'Chill' },
+          { title: 'Coffee Shop Ambience', artist: 'Calm Beats Lab', videoId: 'lTRiuFIWV54', tag: 'Study' },
+          { title: 'Rainy Evening Lo-Fi', artist: 'Chilled Beats', videoId: '5qap5aO4i9A', tag: 'Lo-Fi' },
+          { title: 'Late Night Study', artist: 'Relaxing Beats', videoId: 'DWcJFNfaw9c', tag: 'Focus' },
+          { title: 'Deep Calm', artist: 'Peaceful Melodies', videoId: 'WPni755-Krg', tag: 'Ambient' }
+        ]
+      },
+      {
+        id: 'rock',
+        title: 'Rock & Modern Anthems',
+        subtitle: 'Driving guitars, pounding stadium drums and raw vocal power',
+        tracks: [
+          { title: 'Believer', artist: 'Imagine Dragons', videoId: '7wtfhZwyrcc', tag: 'Rock' },
+          { title: 'Counting Stars', artist: 'OneRepublic', videoId: 'hT_nvWreIhg', tag: 'Pop Rock' },
+          { title: 'Radioactive', artist: 'Imagine Dragons', videoId: 'ktvTqvkFYfc', tag: 'Alt Rock' },
+          { title: 'Demons', artist: 'Imagine Dragons', videoId: 'mWRsgZuwf_8', tag: 'Rock' },
+          { title: 'Shut Up and Dance', artist: 'WALK THE MOON', videoId: '6JCLY0RmxwQ', tag: 'Indie Rock' }
+        ]
+      }
     ],
     playlists: [
-      { title: 'Focus Flow', description: 'Deep work and calm energy.', videoId: 'jfKfPfyJRdk', accent: 'linear-gradient(135deg, #4f46e5, #6366f1)' },
-      { title: 'Night Drive', description: 'Smooth soundtracks for late nights.', videoId: '4NRXx6U8ABQ', accent: 'linear-gradient(135deg, #0f172a, #334155)' },
-      { title: 'Weekend Vibes', description: 'Bright, upbeat songs for your best days.', videoId: 'TUVcZfQe-Kw', accent: 'linear-gradient(135deg, #ec4899, #f59e0b)' },
-      { title: 'Sunset Sessions', description: 'Warm melodies for easy evenings.', videoId: 'H5v3kku4y6Q', accent: 'linear-gradient(135deg, #10b981, #0f766e)' },
+      { title: 'Focus Flow', description: 'Deep work and calm energy for productive sessions.', videoId: 'jfKfPfyJRdk' },
+      { title: 'Night Drive', description: 'Smooth synthwave soundtracks for late night journeys.', videoId: '4xDzrJKXOOY' },
+      { title: 'Weekend Vibes', description: 'Bright, upbeat songs for your best days.', videoId: 'TUVcZfQe-Kw' },
+      { title: 'Sunset Sessions', description: 'Warm melodies and sunset chords for easy evenings.', videoId: 'H5v3kku4y6Q' }
     ],
+    sideFeed: {
+      playlists: [
+        { title: 'Indie Sadie', time: '2d ago', videoId: 'mRD0-GxqHVo', subtitle: 'Indie Chill' },
+        { title: 'Boards of Canada (Full)', time: '4 Oct', videoId: 'dX3k_QDnzHE', subtitle: 'Electronic Mix' },
+        { title: '10122 at Prince Bar', time: '22 Sep', videoId: '4NRXx6U8ABQ', subtitle: 'R&B Live' },
+        { title: 'Kwas Playlist', time: '14 Sep', videoId: 'kTJczUoc26U', subtitle: 'Urban Beats' },
+        { title: 'Library Music', time: '11 Sep', videoId: 'jfKfPfyJRdk', subtitle: 'Study & Work' }
+      ],
+      podcasts: [
+        { title: 'Sound Architecture', time: 'Yesterday', videoId: 'E07s5ZYygMg', subtitle: 'Episode 42 • 54m' },
+        { title: 'Beatmaking Philosophy', time: '3 Oct', videoId: 'AJtDXIazrMo', subtitle: 'Episode 18 • 41m' },
+        { title: 'The Vinyl Diaries', time: '28 Sep', videoId: '8UVNT4wvIGY', subtitle: 'Episode 09 • 38m' }
+      ],
+      albums: [
+        { title: 'After Hours (Deluxe)', time: '2020', videoId: '4NRXx6U8ABQ', subtitle: 'The Weeknd' },
+        { title: 'Future Nostalgia', time: '2020', videoId: 'TUVcZfQe-Kw', subtitle: 'Dua Lipa' },
+        { title: "Harry's House", time: '2022', videoId: 'H5v3kku4y6Q', subtitle: 'Harry Styles' },
+        { title: 'Midnights', time: '2022', videoId: 'b1kbLwvqugk', subtitle: 'Taylor Swift' }
+      ]
+    },
     artists: [
       {
         name: 'The Weeknd',
         genre: 'R&B / Pop',
         bio: 'Chart-topping hits with dark, cinematic sound.',
-        songs: [
-          { title: 'Blinding Lights', videoId: '4NRXx6U8ABQ' },
-          { title: 'Starboy', videoId: 'AJtDXIazrMo' },
-          { title: 'Save Your Tears', videoId: 'LIIDh-qI9oI' },
-        ],
         videoId: '4NRXx6U8ABQ'
       },
       {
         name: 'Dua Lipa',
         genre: 'Dance Pop',
         bio: 'High-energy pop anthems built for the dancefloor.',
-        songs: [
-          { title: 'Levitating', videoId: 'TUVcZfQe-Kw' },
-          { title: "Don't Start Now", videoId: 'oygrmJFkg68' },
-          { title: 'Physical', videoId: 'v8Gp3_O-pA0' },
-        ],
         videoId: 'TUVcZfQe-Kw'
       },
       {
         name: 'Harry Styles',
         genre: 'Pop / Rock',
         bio: 'Retro-influenced pop with emotional depth.',
-        songs: [
-          { title: 'As It Was', videoId: 'H5v3kku4y6Q' },
-          { title: 'Watermelon Sugar', videoId: 'E07s5ZYygMg' },
-          { title: 'Adore You', videoId: 'VF-r5TtlT9w' },
-        ],
         videoId: 'H5v3kku4y6Q'
       },
       {
         name: 'Taylor Swift',
         genre: 'Pop',
         bio: 'Storytelling pop with massive cultural impact.',
-        songs: [
-          { title: 'Anti-Hero', videoId: 'b1kbLwvqugk' },
-          { title: 'Shake It Off', videoId: 'nfWlot6h_JM' },
-          { title: 'Cruel Summer', videoId: 'ic8j13piAhQ' },
-        ],
         videoId: 'b1kbLwvqugk'
-      },
+      }
     ],
+    // Backward compatibility for existing methods
+    get trending() {
+      return homeData.genres[0].tracks.concat(homeData.genres[1].tracks.slice(0, 2));
+    },
+    get recent() {
+      return [
+        homeData.genres[0].tracks[0],
+        homeData.genres[1].tracks[0],
+        homeData.genres[2].tracks[0],
+        homeData.genres[3].tracks[0]
+      ];
+    }
   };
 
   /* ── YT PLAYER ── */
@@ -248,7 +350,7 @@
     if (silentAudio) {
       try {
         silentAudio.pause();
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -257,8 +359,8 @@
       if (!yt) initYT();
       return;
     }
-    
-    window.onYouTubeIframeAPIReady = function() {
+
+    window.onYouTubeIframeAPIReady = function () {
       initYT();
     };
 
@@ -295,7 +397,7 @@
             try {
               yt.setVolume(st.vol * 100);
               if (st.muted) yt.mute(); else yt.unMute();
-            } catch (e) {}
+            } catch (e) { }
             updVolIcon();
             if (pendingPlayback) {
               const next = pendingPlayback;
@@ -309,7 +411,7 @@
                   startSeconds: savedTime,
                   suggestedQuality: 'small'
                 });
-              } catch (e) {}
+              } catch (e) { }
             }
           },
           onStateChange: onState,
@@ -324,7 +426,7 @@
 
   function onState(e) {
     const P = YT.PlayerState;
-    if (e.data === P.PLAYING)  {
+    if (e.data === P.PLAYING) {
       st.playing = true;
       setIcons(true);
       tickStart();
@@ -334,18 +436,18 @@
       playSilentAudio();
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
     }
-    if (e.data === P.PAUSED)   {
+    if (e.data === P.PAUSED) {
       st.playing = false;
       setIcons(false);
       tickStop();
       spin(false);
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-      
+
       // Auto-resume if the pause was not initiated by the user (e.g., app minimized or tab hidden)
       if (!userInitiatedPause) {
         // Keep silent audio playing so background playback/timers stay active
         playSilentAudio();
-        
+
         setTimeout(() => {
           if (yt && ytOk && !userInitiatedPause) {
             try {
@@ -359,11 +461,11 @@
         pauseSilentAudio();
       }
     }
-    if (e.data === P.ENDED)    { onEnd(); }
+    if (e.data === P.ENDED) { onEnd(); }
   }
 
   function onErr(e) {
-    const m = { 2:'Invalid ID', 5:'HTML5 error', 100:'Not found', 101:'Embed blocked', 150:'Embed blocked' };
+    const m = { 2: 'Invalid ID', 5: 'HTML5 error', 100: 'Not found', 101: 'Embed blocked', 150: 'Embed blocked' };
     if (e.data === 100 || e.data === 101 || e.data === 150) {
       toast('Playback is blocked by YouTube in this browser session. The track will appear selected, but audio may need a manual play click.', 'info');
     } else {
@@ -432,7 +534,7 @@
   function splitTextToWordsAndChars(text) {
     const words = String(text || '').split(' ');
     let globalCharIndex = 0;
-    
+
     return words.map(word => {
       const charsHtml = word.split('').map(char => {
         const html = `<span class="split-char" style="--char-index: ${globalCharIndex}">${esc(char)}</span>`;
@@ -574,17 +676,75 @@
     toast(user ? `Welcome back, ${user.name}` : 'Guest mode ready', 'ok');
   }
 
-  /* ── PLAY ── */
-  function play(track, queue = []) {
+  /* ── PLAY & UNLIMITED SMART QUEUE ENGINE ── */
+  let isFetchingRadio = false;
+
+  async function fetchRadioQueue(track, replaceQueue = true) {
+    if (!track || !track.id || isFetchingRadio) return;
+    isFetchingRadio = true;
+
+    try {
+      const trackTitle = track.title || '';
+      const artist = track.author || '';
+      const res = await fetch(`${API_BASE}/api/radio?id=${encodeURIComponent(track.id)}&track=${encodeURIComponent(trackTitle)}&artist=${encodeURIComponent(artist)}`);
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.tracks) && data.tracks.length > 0) {
+          const currentTitleNorm = normalizeTitleForDedupe(trackTitle);
+
+          const freshTracks = data.tracks
+            .filter(t => t.id !== track.id)
+            .filter(t => !st.playedIds.has(t.id))
+            .filter(t => {
+              const norm = normalizeTitleForDedupe(t.title);
+              if (currentTitleNorm && norm && (norm === currentTitleNorm || norm.includes(currentTitleNorm) || currentTitleNorm.includes(norm))) {
+                return false;
+              }
+              return !st.playedTitles.has(norm);
+            })
+            .map(t => ({
+              id: t.id,
+              title: t.title,
+              author: t.author || 'Recommended',
+              thumbnail: t.thumbnail || `https://img.youtube.com/vi/${t.id}/mqdefault.jpg`,
+              duration: t.duration || '3:30',
+              isAutoplay: true
+            }));
+
+          if (freshTracks.length > 0) {
+            if (replaceQueue) {
+              st.queue = freshTracks;
+            } else {
+              const existingIds = new Set(st.queue.map(q => q.id));
+              const toAppend = freshTracks.filter(t => !existingIds.has(t.id));
+              st.queue = [...st.queue, ...toAppend];
+            }
+            persistTrackAndQueue();
+            updQueue();
+            updQBadge();
+            updFPQueue();
+            renderPlaylistDrawer();
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Radio queue fetch failed:', err);
+    } finally {
+      isFetchingRadio = false;
+    }
+  }
+
+  function play(track, queue = [], isExplicitPlaylist = false) {
     if (!ytOk || !yt) {
-      pendingPlayback = { track, queue };
+      pendingPlayback = { track, queue, isExplicitPlaylist };
       toast('Player loading…', 'info');
       loadYT();
       return;
     }
     const prev = normalizeTrack(st.track);
     if (prev && prev.id) {
-      st.hist = [prev, ...st.hist.filter(item => item.id !== prev.id)].slice(0, 12);
+      st.hist = [prev, ...st.hist.filter(item => item.id !== prev.id)].slice(0, 20);
       persistHistory();
     }
     st.track = normalizeTrack(track);
@@ -592,10 +752,22 @@
       st.playedIds.add(st.track.id);
       st.playedTitles.add(normalizeTitleForDedupe(st.track.title));
     }
-    st.queue = [...queue];
+
+    if (isExplicitPlaylist || (queue && queue.length > 0)) {
+      st.queue = [...queue];
+    } else {
+      st.queue = [];
+      // Autoplay / Single track play: Automatically generate smart infinite radio queue in the same genre!
+      fetchRadioQueue(st.track, true);
+    }
+
     persistTrackAndQueue();
     localStorage.setItem('sumic_time', '0');
-    updBar(st.track); updFull(st.track); updQueue(); updFPQueue(); markNow(st.track.id);
+    updBar(st.track);
+    updFull(st.track);
+    updQueue();
+    updFPQueue();
+    markNow(st.track.id);
     loadLyrics(st.track);
     fetchRecommendations(st.track);
     updateMediaSession(st.track);
@@ -608,7 +780,7 @@
         try {
           yt.playVideo();
           yt.setVolume(st.vol * 100);
-        } catch (e) {}
+        } catch (e) { }
       }, 700);
     } catch (e) {
       toast('Unable to start playback right now.', 'err');
@@ -650,73 +822,59 @@
   }
 
   async function triggerAutoplay() {
-    if (!st.autoplay) return;
-    
-    toast('Autoplaying similar track...', 'info');
-    
-    let pool = st.recommendations.filter(t => 
-      !st.playedIds.has(t.id) && 
-      !st.playedTitles.has(normalizeTitleForDedupe(t.title))
-    );
-    
-    const currentAuthor = st.track ? st.track.author : '';
+    if (!st.autoplay || !st.track) return;
 
-    if (pool.length < 3 && st.track) {
-      const anchor = `${st.track.title} ${currentAuthor} mix`.trim();
-      try {
-        const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(anchor)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && Array.isArray(data.results)) {
-            const newTracks = data.results.filter(t => 
-              t.id !== st.track.id &&
-              !st.playedIds.has(t.id) && 
-              !st.playedTitles.has(normalizeTitleForDedupe(t.title))
-            );
-            pool = [...pool, ...newTracks];
+    toast('Playing next similar track…', 'info');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/radio?id=${encodeURIComponent(st.track.id)}&track=${encodeURIComponent(st.track.title)}&artist=${encodeURIComponent(st.track.author || '')}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.tracks) && data.tracks.length > 0) {
+          const currentTitleNorm = normalizeTitleForDedupe(st.track.title);
+          const candidates = data.tracks.filter(t => {
+            if (t.id === st.track.id || st.playedIds.has(t.id)) return false;
+            const norm = normalizeTitleForDedupe(t.title);
+            if (currentTitleNorm && (norm === currentTitleNorm || norm.includes(currentTitleNorm) || currentTitleNorm.includes(norm))) return false;
+            return !st.playedTitles.has(norm);
+          });
+
+          if (candidates.length > 0) {
+            const nextTrack = candidates.shift();
+            play(nextTrack, candidates, true);
+            return;
           }
         }
-      } catch (e) {
-        console.warn('Autoplay fetch failed:', e);
       }
+    } catch (e) {
+      console.warn('Radio autoplay error:', e);
     }
-    
-    if (pool.length > 0) {
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
 
-      let nextTrackIndex = pool.findIndex(t => t.author !== currentAuthor);
-      if (nextTrackIndex === -1) nextTrackIndex = 0;
-      
-      const nextTrack = pool.splice(nextTrackIndex, 1)[0];
-      nextTrack.isAutoplay = true;
-      nextTrack.author = nextTrack.author || nextTrack.uploaderName || 'Autoplay';
-      nextTrack.thumbnail = nextTrack.thumbnail || `https://img.youtube.com/vi/${nextTrack.id}/mqdefault.jpg`;
-      
-      let sameArtistCount = 0;
-      const autoQueue = [];
-      for (let t of pool) {
-        if (t.author === currentAuthor) {
-          sameArtistCount++;
-          if (sameArtistCount > 1) continue; 
+    // Fallback: search similar songs
+    const anchor = `${st.track.author || st.track.title} mix radio`.trim();
+    try {
+      const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(anchor)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.results)) {
+          const currentTitleNorm = normalizeTitleForDedupe(st.track.title);
+          const filtered = data.results.filter(t => {
+            if (t.id === st.track.id || st.playedIds.has(t.id)) return false;
+            const norm = normalizeTitleForDedupe(t.title);
+            if (currentTitleNorm && (norm === currentTitleNorm || norm.includes(currentTitleNorm) || currentTitleNorm.includes(norm))) return false;
+            return !st.playedTitles.has(norm);
+          });
+          if (filtered.length > 0) {
+            const nextTrack = filtered.shift();
+            play(nextTrack, filtered, true);
+            return;
+          }
         }
-        autoQueue.push({
-          id: t.id,
-          title: t.title,
-          author: t.author || t.uploaderName || 'Autoplay',
-          thumbnail: t.thumbnail || `https://img.youtube.com/vi/${t.id}/mqdefault.jpg`,
-          isAutoplay: true
-        });
-        if (autoQueue.length === 5) break;
       }
-      
-      play(nextTrack, autoQueue);
-    } else {
-      toast('No similar tracks found for autoplay.', 'info');
-      setIcons(false);
-    }
+    } catch (e) {}
+
+    toast('No more similar tracks found.', 'info');
+    setIcons(false);
   }
 
   function onEnd(force = false) {
@@ -727,18 +885,23 @@
     if (st.shuffle && q.length > 1) {
       const i = Math.floor(Math.random() * q.length);
       const t = q.splice(i, 1)[0];
-      play(t, q); return;
+      play(t, q, true); return;
     }
     if (q.length > 0) {
       const t = q.shift();
-      play(t, q);
+      st.queue = q;
+      play(t, q, true);
+      // Keep queue infinite: if 3 or fewer tracks remain, fetch more in background
+      if (st.queue.length <= 3 && st.autoplay) {
+        fetchRadioQueue(t, false);
+      }
       return;
     }
     if (st.repeatMode === 'all' && st.hist.length > 0) {
       const all = [...st.hist, ...(st.track ? [st.track] : [])];
       st.hist = [];
       const first = all.shift();
-      play(first, all); return;
+      play(first, all, true); return;
     }
     if (st.autoplay) {
       triggerAutoplay();
@@ -945,6 +1108,9 @@
       st.tab = name;
       document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.spec-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-tab') === name);
+      });
       document.getElementById(`pane-${name}`)?.classList.add('active');
       const activeBtn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -952,6 +1118,21 @@
         btn.classList.toggle('active', isActive);
         btn.setAttribute('aria-current', isActive ? 'page' : 'false');
       });
+
+      const breadcrumb = document.getElementById('headerBreadcrumb');
+      if (breadcrumb) {
+        const labels = {
+          home: 'Discover your sound',
+          search: 'Search & Explore',
+          trending: 'Trending Hits & Charts',
+          playlist: 'My Playlists',
+          imported: 'Import Music',
+          liked: 'Liked Songs',
+          queue: 'Up Next Queue'
+        };
+        breadcrumb.textContent = labels[name] || 'Discover your sound';
+      }
+
       if (name === 'search') setTimeout(() => document.getElementById('searchQ')?.focus(), 80);
       announce(`${name.charAt(0).toUpperCase() + name.slice(1)} view opened`);
     },
@@ -961,8 +1142,9 @@
       if (!q) {
         const hq = document.getElementById('heroQ');
         const sq = document.getElementById('searchQ');
-        const active = document.activeElement?.id === 'heroQ' ? hq : sq;
-        q = (active?.value || hq?.value || sq?.value || '').trim();
+        const tq = document.getElementById('topNavSearchInput');
+        const active = document.activeElement?.id === 'heroQ' ? hq : (document.activeElement?.id === 'topNavSearchInput' ? tq : sq);
+        q = (active?.value || hq?.value || sq?.value || tq?.value || '').trim();
       }
       q = q.trim();
       if (!q) return;
@@ -971,6 +1153,8 @@
       if (sq) { sq.value = q; const xBtn = document.getElementById('xBtn'); if (xBtn) xBtn.style.display = 'flex'; }
       const hero = document.getElementById('heroQ');
       if (hero) hero.value = q;
+      const topNav = document.getElementById('topNavSearchInput');
+      if (topNav) topNav.value = q;
       st.query = q;
       addRecent(q);
       loading(true);
@@ -979,19 +1163,19 @@
         const r = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(q)}`);
         const d = await r.json();
         loading(false);
-        if (d.error || !d.results?.length) { 
-          renderResults([], q); 
-          toast(d.error || `No results for "${q}"`, 'err'); 
-          announce(`No results for ${q}`); 
-          return; 
+        if (d.error || !d.results?.length) {
+          renderResults([], q);
+          toast(d.error || `No results for "${q}"`, 'err');
+          announce(`No results for ${q}`);
+          return;
         }
         st.results = d.results;
         renderResults(d.results, q);
         announce(`Showing results for ${q}`);
-      } catch(e) { 
-        loading(false); 
-        toast('Search failed: ' + e.message, 'err'); 
-        announce('Search failed'); 
+      } catch (e) {
+        loading(false);
+        toast('Search failed: ' + e.message, 'err');
+        announce('Search failed');
       }
     },
 
@@ -1000,8 +1184,16 @@
     syncInputs(val, from) {
       const xBtn = document.getElementById('xBtn');
       if (xBtn) xBtn.style.display = val ? 'flex' : 'none';
-      if (from === 'hero') { const s = document.getElementById('searchQ'); if (s) s.value = val; }
-      else { const h = document.getElementById('heroQ'); if (h) h.value = val; }
+      if (from === 'hero') {
+        const s = document.getElementById('searchQ'); if (s) s.value = val;
+        const t = document.getElementById('topNavSearchInput'); if (t) t.value = val;
+      } else if (from === 'top') {
+        const s = document.getElementById('searchQ'); if (s) s.value = val;
+        const h = document.getElementById('heroQ'); if (h) h.value = val;
+      } else {
+        const h = document.getElementById('heroQ'); if (h) h.value = val;
+        const t = document.getElementById('topNavSearchInput'); if (t) t.value = val;
+      }
     },
 
     clearSearch() {
@@ -1014,7 +1206,7 @@
     playAt(i) {
       if (!st.results[i]) return;
       const t = st.results[i];
-      play({ id:t.id, title:t.title, author:t.author, thumbnail:t.thumbnail }, []);
+      play({ id: t.id, title: t.title, author: t.author, thumbnail: t.thumbnail }, []);
     },
 
     pp() {
@@ -1029,19 +1221,19 @@
           playSilentAudio();
           yt.playVideo();
         }
-      } catch(e){}
+      } catch (e) { }
     },
 
     prev() {
       if (!yt || !ytOk) return;
-      try { if (yt.getCurrentTime() > 3) { yt.seekTo(0, true); return; } } catch(e) {}
+      try { if (yt.getCurrentTime() > 3) { yt.seekTo(0, true); return; } } catch (e) { }
       if (st.hist.length > 0) {
         const prev = st.hist.pop();
         if (st.track) st.queue.unshift(st.track);
         const q = [...st.queue];
         st.hist.pop(); // will be re-pushed by play()
         play(prev, q);
-      } else { try { yt.seekTo(0, true); } catch(e) {} }
+      } else { try { yt.seekTo(0, true); } catch (e) { } }
     },
 
     next() { onEnd(true); },
@@ -1075,7 +1267,7 @@
         try {
           yt.setVolume(st.vol * 100);
           if (st.muted) yt.mute(); else yt.unMute();
-        } catch (e) {}
+        } catch (e) { }
       }
       localStorage.setItem('sumic_vol', st.vol);
       const s = document.getElementById('volRange');
@@ -1092,14 +1284,14 @@
         st.muted = false;
         st.vol = st.lastVol > 0 ? st.lastVol : Math.max(0.1, st.vol);
         if (yt && ytOk) {
-          try { yt.unMute(); yt.setVolume(st.vol * 100); } catch (e) {}
+          try { yt.unMute(); yt.setVolume(st.vol * 100); } catch (e) { }
         }
       } else {
         st.lastVol = st.vol > 0 ? st.vol : (st.lastVol > 0 ? st.lastVol : 0.8);
         st.muted = true;
         st.vol = 0;
         if (yt && ytOk) {
-          try { yt.mute(); yt.setVolume(0); } catch (e) {}
+          try { yt.mute(); yt.setVolume(0); } catch (e) { }
         }
       }
       if (s) {
@@ -1131,7 +1323,7 @@
           btn.innerHTML = innerHtml;
         }
       });
-      toast({ off:'Repeat off', all:'Repeat all', one:'Repeat one' }[st.repeatMode], 'ok');
+      toast({ off: 'Repeat off', all: 'Repeat all', one: 'Repeat one' }[st.repeatMode], 'ok');
     },
 
     expand() {
@@ -1184,7 +1376,7 @@
 
     playFromQueue(i) {
       if (i >= st.queue.length) return;
-      const t = st.queue[i], rest = st.queue.slice(i+1);
+      const t = st.queue[i], rest = st.queue.slice(i + 1);
       st.queue = rest;
       play(t, rest);
     },
@@ -1204,12 +1396,12 @@
       }
       grid.innerHTML = st.playlists.map(playlist => `
         <article class="music-card" onclick="S.viewPlaylist('${playlist.id}', 'playlist')">
-          <div class="card-icon" style="background: ${playlist.type === 'imported' ? 'linear-gradient(135deg, var(--primary), var(--accent-cool))' : 'rgba(255,255,255,0.06)'}; color: ${playlist.type === 'imported' ? '#000' : 'var(--primary)'}; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px;">
+          <div class="card-icon" style="background: ${playlist.type === 'imported' ? 'var(--sumic-signal-muted)' : 'var(--sumic-slate)'}; color: ${playlist.type === 'imported' ? 'var(--sumic-signal)' : 'var(--sumic-silver)'}; width: 48px; height: 48px; border-radius: var(--r-xs); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; border: 1px solid var(--sumic-line);">
             <i class="fas ${playlist.type === 'imported' ? 'fa-file-import' : 'fa-list'}"></i>
           </div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">${esc(playlist.title)}</h3>
-          <p style="color: var(--t2); font-size: 0.85rem;">${playlist.tracks.length} tracks • ${esc(playlist.owner || 'User')}</p>
-          ${playlist.type === 'imported' ? '<span class="playlist-badge" style="font-size: 10px; background: rgba(29, 185, 84, 0.2); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-top: 8px; display: inline-block;">Imported</span>' : ''}
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: var(--sumic-paper);">${esc(playlist.title)}</h3>
+          <p style="color: var(--sumic-muted); font-size: 0.85rem;">${playlist.tracks.length} tracks • ${esc(playlist.owner || 'User')}</p>
+          ${playlist.type === 'imported' ? '<span class="playlist-badge" style="font-size: 10px; background: var(--sumic-signal-muted); color: var(--sumic-signal); padding: 2px 6px; border-radius: 2px; font-weight: bold; margin-top: 8px; display: inline-block; border: 1px solid var(--sumic-signal);">Imported Archive</span>' : ''}
         </article>
       `).join('');
     },
@@ -1352,7 +1544,7 @@
         playlist.title = newTitle;
         localStorage.setItem('sumic_playlists', JSON.stringify(st.playlists));
         toast('Playlist renamed', 'ok');
-        
+
         if (origin === 'playlist') {
           S.viewPlaylist(playlistId, 'playlist');
         } else if (origin === 'imported-detail') {
@@ -1373,7 +1565,7 @@
         st.playlists.splice(idx, 1);
         localStorage.setItem('sumic_playlists', JSON.stringify(st.playlists));
         toast('Playlist deleted', 'ok');
-        
+
         if (origin === 'playlist') {
           S.backToPlaylists();
         } else {
@@ -1387,7 +1579,7 @@
     playPlaylist(playlistId, startIdx = 0) {
       const playlist = st.playlists.find(p => p.id === playlistId);
       if (!playlist || !playlist.tracks || playlist.tracks.length === 0) return;
-      
+
       const track = playlist.tracks[startIdx];
       const rest = playlist.tracks.slice(startIdx + 1).map(item => ({
         id: item.id || item.videoId,
@@ -1396,13 +1588,105 @@
         thumbnail: item.thumbnail,
         duration: item.duration
       }));
-      
-      play({ id: track.id || track.videoId, title: track.title, author: track.author || track.artist, thumbnail: track.thumbnail, duration: track.duration }, rest);
+
+      play({ id: track.id || track.videoId, title: track.title, author: track.author || track.artist, thumbnail: track.thumbnail, duration: track.duration }, rest, true);
       announce(`Playing playlist ${playlist.title}`);
     },
 
     playTrackFromPlaylist(playlistId, idx) {
       S.playPlaylist(playlistId, idx);
+    },
+
+    filterGenre(genreId) {
+      document.querySelectorAll('.home-sub-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-genre') === genreId);
+      });
+      const catLabel = document.getElementById('homeCurrentCategory');
+      const genreObj = (homeData.genres || []).find(g => g.id === genreId);
+      if (catLabel) {
+        catLabel.textContent = genreObj ? genreObj.title : 'Curated & Trending';
+      }
+      const genreSections = document.querySelectorAll('.home-genre-section');
+      genreSections.forEach(sec => {
+        const secGenre = sec.getAttribute('data-genre');
+        if (genreId === 'all' || !secGenre || secGenre === genreId) {
+          sec.style.display = 'block';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+    },
+
+    shuffleAllHome() {
+      const allTracks = [];
+      (homeData.genres || []).forEach(g => {
+        g.tracks.forEach(t => allTracks.push(t));
+      });
+      if (allTracks.length === 0) return;
+      // Fisher-Yates shuffle
+      const shuffled = [...allTracks];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      const first = shuffled[0];
+      const rest = shuffled.slice(1).map(t => ({
+        id: t.videoId,
+        title: t.title,
+        author: t.artist,
+        thumbnail: thumbUrl(t.videoId)
+      }));
+      play({ id: first.videoId, title: first.title, author: first.artist, thumbnail: thumbUrl(first.videoId) }, rest, true);
+      toast(`Shuffled ${allTracks.length} curated songs`, 'ok');
+      announce(`Playing shuffled library`);
+    },
+
+    playHeroPlaylist() {
+      const hero = homeData.hero;
+      const rnbGenre = (homeData.genres || []).find(g => g.id === 'rnb');
+      const rest = (rnbGenre ? rnbGenre.tracks.slice(1) : []).map(t => ({
+        id: t.videoId,
+        title: t.title,
+        author: t.artist,
+        thumbnail: thumbUrl(t.videoId)
+      }));
+      play({ id: hero.videoId, title: hero.title, author: hero.artist, thumbnail: thumbUrl(hero.videoId) }, rest, true);
+      toast(`Playing Curated Playlist: ${hero.title}`, 'ok');
+      announce(`Playing ${hero.title}`);
+    },
+
+    playGenreAll(genreId) {
+      const genre = (homeData.genres || []).find(g => g.id === genreId);
+      if (!genre || !genre.tracks.length) return;
+      const first = genre.tracks[0];
+      const rest = genre.tracks.slice(1).map(t => ({
+        id: t.videoId,
+        title: t.title,
+        author: t.artist,
+        thumbnail: thumbUrl(t.videoId)
+      }));
+      play({ id: first.videoId, title: first.title, author: first.artist, thumbnail: thumbUrl(first.videoId) }, rest, true);
+      toast(`Playing ${genre.title}`, 'ok');
+      announce(`Playing ${genre.title}`);
+    },
+
+    playLivePulse() {
+      const liveTrack = {
+        id: '4NRXx6U8ABQ',
+        title: 'Dungen Live (Analog Synth Edition)',
+        author: 'Dungen',
+        thumbnail: 'https://img.youtube.com/vi/4NRXx6U8ABQ/mqdefault.jpg'
+      };
+      play(liveTrack, []);
+      toast(`Playing Live Pulse`, 'ok');
+      announce(`Playing Dungen Live`);
+    },
+
+    switchSideFeed(feedType) {
+      document.querySelectorAll('.home-feed-tab').forEach(t => {
+        t.classList.toggle('active', t.getAttribute('data-feed') === feedType);
+      });
+      renderSideFeed(feedType);
     },
   };
 
@@ -1414,9 +1698,14 @@
     st.timer = setInterval(() => {
       if (!yt || !yt.getDuration) return;
       let cur = 0;
-      try { cur = yt.getCurrentTime() || 0; } catch (e) {}
+      try { cur = yt.getCurrentTime() || 0; } catch (e) { }
       let dur = 0;
-      try { dur = yt.getDuration() || 0; } catch (e) {}
+      try { dur = yt.getDuration() || 0; } catch (e) { }
+
+      // Keep queue infinite: if queue has 3 or fewer tracks remaining, auto-fetch more in background
+      if (st.queue.length <= 3 && st.track && st.autoplay && !isFetchingRadio) {
+        fetchRadioQueue(st.track, false);
+      }
 
       // Fallback to track duration if player returns 0
       if (!dur && st.track && st.track.duration) {
@@ -1439,7 +1728,7 @@
             playbackRate: 1,
             position: cur
           });
-        } catch (e) {}
+        } catch (e) { }
       }
 
       const pct = dur ? (cur / dur) * 100 : 0;
@@ -1471,7 +1760,7 @@
     // Update to use new animation class name
     document.getElementById('fpDisc')?.classList.toggle('spin', on);
     document.getElementById('npThumb')?.classList.toggle('spin', on);
-    
+
     // Add playing class to premium play buttons for pulsing animation (Task 4.2)
     const fpPlay = document.getElementById('fpPlay');
     if (fpPlay) fpPlay.classList.toggle('playing', on);
@@ -1494,7 +1783,7 @@
     })());
     const low = muted || st.vol < .01;
     const iconHtml = `<i class="fas fa-volume-${low ? 'xmark' : st.vol < .5 ? 'low' : 'high'}"></i>`;
-    
+
     // Update both volume buttons
     ['volBtn', 'npVolBtn'].forEach(id => {
       const btn = document.getElementById(id);
@@ -1517,8 +1806,8 @@
   /* ── BAR / FULL PLAYER ── */
   function updBar(t) {
     document.getElementById('npTitle').textContent = t.title || 'Unknown';
-    document.getElementById('npArt').textContent   = t.author || '--';
-    
+    document.getElementById('npArt').textContent = t.author || '--';
+
     // Update initial duration from track metadata immediately
     const durationText = t.duration ? fmtDur(t.duration) : '0:00';
     const nd = document.getElementById('npDur');
@@ -1554,8 +1843,8 @@
 
   function updFull(t) {
     document.getElementById('fpTitle').textContent = t.title || 'Unknown';
-    document.getElementById('fpArt').textContent   = t.author || '--';
-    
+    document.getElementById('fpArt').textContent = t.author || '--';
+
     // Update initial duration from track metadata immediately
     const durationText = t.duration ? fmtDur(t.duration) : '0:00';
     const fd = document.getElementById('fpDur');
@@ -1589,7 +1878,7 @@
       el.innerHTML = st.queue.map((t, i) => `
         <div class="q-item" onclick="S.playFromQueue(${i})">
           <div class="q-thumb">${t.thumbnail ? `<img src="${t.thumbnail}" alt="" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music\\'></i>'">` : '<i class="fas fa-music"></i>'}</div>
-          <div class="q-info"><div class="q-title">${esc(t.title)}</div><div class="q-by">${esc(t.author||'--')}${t.isAutoplay ? ' <span class="q-badge-autoplay">Autoplay</span>' : ''}</div></div>
+          <div class="q-info"><div class="q-title">${esc(t.title)}</div><div class="q-by">${esc(t.author || '--')}${t.isAutoplay ? ' <span class="q-badge-autoplay">Autoplay</span>' : ''}</div></div>
           <button class="q-rm" onclick="event.stopPropagation();S.rmQueue(${i})"><i class="fas fa-times"></i></button>
         </div>`).join('');
     }
@@ -1612,7 +1901,7 @@
     items.innerHTML = next3.map((t, i) => `
       <div class="fp-q-item" onclick="S.playFromQueue(${i})">
         <div class="fp-qt">${t.thumbnail ? `<img src="${t.thumbnail}" alt="" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music\\'></i>'">` : '<i class="fas fa-music"></i>'}</div>
-        <div class="fp-qi"><div class="fp-qn">${esc(t.title)}</div><div class="fp-qa">${esc(t.author||'--')}</div></div>
+        <div class="fp-qi"><div class="fp-qn">${esc(t.title)}</div><div class="fp-qa">${esc(t.author || '--')}</div></div>
       </div>`).join('');
   }
 
@@ -1646,17 +1935,17 @@
       ${artistCard}
       <div class="res-list">
         ${res.map((r, i) => `
-          <div class="res-item" data-vid="${r.id}" data-i="${i+1}" onclick="S.playAt(${i})">
-            <span class="res-num">${i+1}</span>
+          <div class="res-item" data-vid="${r.id}" data-i="${i + 1}" onclick="S.playAt(${i})">
+            <span class="res-num">${i + 1}</span>
             <div class="res-thumb">${r.thumbnail ? `<img src="${r.thumbnail}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music\\'></i>'">` : '<i class="fas fa-music"></i>'}</div>
             <div class="res-info">
               <div class="res-title">${esc(r.title)}</div>
-              <div class="res-by">${esc(r.author||'')}${r.duration ? ' • ' + fmtDur(r.duration) : ''}</div>
+              <div class="res-by">${esc(r.author || '')}${r.duration ? ' • ' + fmtDur(r.duration) : ''}</div>
             </div>
             <div class="res-actions">
               <button class="res-play" onclick="event.stopPropagation();S.playAt(${i})"><i class="fas fa-play"></i></button>
-              <button class="res-queue" onclick="event.stopPropagation();S.addToQueue('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author||'')}','${quoteJs(r.thumbnail||'')}','${r.duration || ''}')"><i class="fas fa-plus"></i></button>
-              <button class="res-like ${isLiked(r.id) ? 'active' : ''}" onclick="event.stopPropagation();S.toggleLike('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author||'')}','${quoteJs(r.thumbnail||'')}','${r.duration || ''}')"><i class="fas fa-heart"></i></button>
+              <button class="res-queue" onclick="event.stopPropagation();S.addToQueue('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author || '')}','${quoteJs(r.thumbnail || '')}','${r.duration || ''}')"><i class="fas fa-plus"></i></button>
+              <button class="res-like ${isLiked(r.id) ? 'active' : ''}" onclick="event.stopPropagation();S.toggleLike('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author || '')}','${quoteJs(r.thumbnail || '')}','${r.duration || ''}')"><i class="fas fa-heart"></i></button>
             </div>
           </div>`).join('')}
       </div>`;
@@ -1720,7 +2009,7 @@
             </div>
             <div class="res-actions">
               <button class="res-play" type="button" onclick="event.stopPropagation();S.playLiked(${index})"><i class="fas fa-play"></i></button>
-              <button class="res-queue" type="button" onclick="event.stopPropagation();S.addToQueue('${track.id}','${quoteJs(track.title)}','${quoteJs(track.author||'')}','${quoteJs(track.thumbnail||'')}','${track.duration || ''}')"><i class="fas fa-plus"></i></button>
+              <button class="res-queue" type="button" onclick="event.stopPropagation();S.addToQueue('${track.id}','${quoteJs(track.title)}','${quoteJs(track.author || '')}','${quoteJs(track.thumbnail || '')}','${track.duration || ''}')"><i class="fas fa-plus"></i></button>
               <button class="res-like active" type="button" onclick="event.stopPropagation();S.removeLiked(${index})"><i class="fas fa-heart"></i></button>
             </div>
           </div>`).join('')}
@@ -1839,48 +2128,122 @@
       </div>`;
   }
 
-  function renderHome() {
-    const trendingGrid = document.getElementById('trendingGrid');
-    const recentList = document.getElementById('recentlyPlayedList');
-    const playlistGrid = document.getElementById('playlistGrid');
-    const artistRow = document.getElementById('artistRow');
-    const heroArt = document.getElementById('heroArt');
-    const spotlight = document.getElementById('homeSpotlight');
-    if (!trendingGrid || !recentList || !playlistGrid) return;
+  function isLiked(id) {
+    return Boolean(st.liked && st.liked.some(x => (x.id === id || x.videoId === id)));
+  }
 
-    const featured = homeData.trending[0];
-    const vibe = inferListeningVibe();
-    const userName = st.user?.name || 'friend';
-    if (heroArt) {
-      heroArt.innerHTML = featured?.videoId
-        ? `<img src="${thumbUrl(featured.videoId)}" alt="${esc(featured.title)} thumbnail" loading="lazy">`
-        : '';
-    }
+  function quoteJs(s) {
+    return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
 
-    if (spotlight) {
-      spotlight.innerHTML = `
-        <div class="spotlight-card">
-          <div class="spotlight-copy">
-            <p class="sec-label">For ${esc(userName)}</p>
-            <h3>${esc(`Your ${vibe.label} mix is ready`)}</h3>
-            <p>${esc(`You’ve been leaning toward ${vibe.label} energy, so we layered in ${vibe.songs.join(' and ')} for your next session.`)}</p>
+  function getGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  function renderSideFeed(feedType = 'playlists') {
+    const listEl = document.getElementById('homeFeedList');
+    if (!listEl || !homeData.sideFeed) return;
+    const items = homeData.sideFeed[feedType] || homeData.sideFeed.playlists || [];
+    listEl.innerHTML = items.map((item, idx) => {
+      const art = thumbUrl(item.videoId);
+      return `
+        <div class="home-feed-item" onclick="S.playTrack('${item.videoId}','${quoteJs(item.title)}','${quoteJs(item.subtitle)}','${quoteJs(art)}')">
+          <div class="home-feed-art">
+            <img src="${art}" alt="${esc(item.title)}" loading="lazy">
           </div>
-          <button type="button" onclick="S.tab('search')">Explore now</button>
-        </div>`;
+          <div class="home-feed-meta">
+            <div class="home-feed-title">${esc(item.title)}</div>
+            <div class="home-feed-sub">${esc(item.subtitle)}</div>
+          </div>
+          <div class="home-feed-time">${esc(item.time)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderHome() {
+    // 1. Render Hero Banner (Reference inspired: Warm Coral/Amber card with The Weeknd & Curated Playlist info)
+    const heroEl = document.getElementById('homeHeroBanner');
+    if (heroEl && homeData.hero) {
+      const h = homeData.hero;
+      const isHeroLiked = isLiked(h.videoId);
+      heroEl.innerHTML = `
+        <div class="home-hero-content">
+          <div class="home-hero-tag">${esc(h.tag)}</div>
+          <h1 class="home-hero-title">${esc(h.title)}</h1>
+          <p class="home-hero-artists">${esc(h.subtitle)}</p>
+          <div class="home-hero-meta-row">
+            <div class="home-hero-likes"><i class="fas fa-heart"></i> <span>${esc(h.likes)}</span></div>
+            <span class="home-hero-dot">•</span>
+            <div class="home-hero-count">${esc(h.trackCount)}, ${esc(h.duration)}</div>
+          </div>
+          <div class="home-hero-actions">
+            <button class="home-hero-play-btn" type="button" onclick="S.playHeroPlaylist()">
+              <i class="fas fa-play"></i> <span>Play Playlist</span>
+            </button>
+            <button class="home-hero-action-btn ${isHeroLiked ? 'active' : ''}" type="button" aria-label="Like Playlist" onclick="S.toggleLike('${h.videoId}','${quoteJs(h.title)}','${quoteJs(h.artist)}','${quoteJs(h.artistImage)}')">
+              <i class="fas fa-heart"></i>
+            </button>
+            <button class="home-hero-action-btn" type="button" aria-label="Queue Playlist" onclick="S.addToQueue('${h.videoId}','${quoteJs(h.title)}','${quoteJs(h.artist)}','${quoteJs(h.artistImage)}')">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="home-hero-visual">
+          <img class="home-hero-artist-img" src="${h.artistImage}" alt="${esc(h.title)}" loading="eager">
+          <div class="home-hero-glow"></div>
+        </div>
+      `;
+      // Set atmospheric tone based on content genre
+      const tag = (h.tag || '').toLowerCase();
+      const toneMap = { 'r&b': 'coral', 'rnb': 'coral', 'electronic': 'violet', 'edm': 'violet', 'lo-fi': 'teal', 'chill': 'teal', 'indie': 'teal', 'pop': 'amber', 'hip-hop': 'indigo', 'hiphop': 'indigo', 'rock': 'rose' };
+      const tone = Object.entries(toneMap).find(([k]) => tag.includes(k))?.[1] || 'indigo';
+      heroEl.setAttribute('data-tone', tone);
     }
 
-    trendingGrid.innerHTML = homeData.trending.map(item => `
-      <article class="tile-card" onclick="S.quick('${esc(item.title).replace(/'/g, "\\'")}')">
-        <div class="tile-art" style="background:${item.accent}">
-          <img src="${thumbUrl(item.videoId)}" alt="${esc(item.title)} thumbnail" loading="lazy" onload="this.classList.add('loaded')">
-        </div>
-        <div class="tile-copy">
-          <h3>${esc(item.title)}</h3>
-          <p>${esc(item.artist)}</p>
-        </div>
-      </article>`).join('');
+    // 2. Render Genre Streams (7 Genre Sections, 40+ songs with verified IDs, zero duplicates)
+    const streamsEl = document.getElementById('homeGenreStreams');
+    if (streamsEl && homeData.genres) {
+      streamsEl.innerHTML = homeData.genres.map(genre => `
+        <section class="home-genre-section" id="genre-${genre.id}" data-genre="${genre.id}">
+          <div class="home-section-header">
+            <div>
+              <span class="home-section-eyebrow">${esc(genre.id.toUpperCase())} SELECTION</span>
+              <h2 class="home-section-heading">${esc(genre.title)}</h2>
+              <p class="home-section-desc">${esc(genre.subtitle)}</p>
+            </div>
+            <button class="home-section-more" type="button" onclick="S.playGenreAll('${genre.id}')">
+              <span>Play All</span> <i class="fas fa-play"></i>
+            </button>
+          </div>
+          <div class="home-tracks-grid">
+            ${genre.tracks.map((track, idx) => {
+              const art = thumbUrl(track.videoId);
+              return `
+                <article class="home-album-card" onclick="S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
+                  <div class="home-album-art-wrap">
+                    <img class="home-album-art" src="${art}" alt="${esc(track.title)}" loading="lazy">
+                    <span class="home-album-badge">${esc(track.tag || 'Track')}</span>
+                    <button class="home-album-play" type="button" aria-label="Play ${esc(track.title)}" onclick="event.stopPropagation();S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
+                      <i class="fas fa-play"></i>
+                    </button>
+                  </div>
+                  <div class="home-album-meta">
+                    <h3 class="home-album-title" title="${esc(track.title)}">${esc(track.title)}</h3>
+                    <p class="home-album-artist">${esc(track.artist)}</p>
+                  </div>
+                </article>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      `).join('');
+    }
 
-    // Dynamic Recommendations section
+    // 3. Render Dynamic Recommendations (when available)
     const recSection = document.getElementById('recommendationsSection');
     const recGrid = document.getElementById('recommendationsGrid');
     const recLabel = document.getElementById('recommendationLabel');
@@ -1889,76 +2252,41 @@
       if (st.recommendations && st.recommendations.length > 0) {
         recSection.style.display = 'block';
         if (recLabel && recTitle && st.recAnchor) {
-          recLabel.textContent = `Recommended for You`;
+          recLabel.textContent = `Tailored For You`;
           recTitle.textContent = `Based on your interest in "${esc(st.recAnchor)}"`;
         }
-        recGrid.innerHTML = st.recommendations.map(item => `
-          <article class="tile-card" onclick="S.playTrack('${item.id}','${quoteJs(item.title)}','${quoteJs(item.author)}','${quoteJs(item.thumbnail)}')">
-            <div class="tile-art" style="background: linear-gradient(135deg, var(--primary), var(--bg2))">
-              <img src="${item.thumbnail}" alt="${esc(item.title)} thumbnail" loading="lazy" onload="this.classList.add('loaded')">
-            </div>
-            <div class="tile-copy">
-              <h3>${esc(item.title)}</h3>
-              <p>${esc(item.author)}</p>
-            </div>
-          </article>`).join('');
+        recGrid.innerHTML = st.recommendations.map(item => {
+          const art = item.thumbnail || thumbUrl(item.id);
+          return `
+            <article class="home-album-card" onclick="S.playTrack('${item.id}','${quoteJs(item.title)}','${quoteJs(item.author || item.artist)}','${quoteJs(art)}')">
+              <div class="home-album-art-wrap">
+                <img class="home-album-art" src="${art}" alt="${esc(item.title)}" loading="lazy">
+                <button class="home-album-play" type="button" aria-label="Play ${esc(item.title)}" onclick="event.stopPropagation();S.playTrack('${item.id}','${quoteJs(item.title)}','${quoteJs(item.author || item.artist)}','${quoteJs(art)}')">
+                  <i class="fas fa-play"></i>
+                </button>
+              </div>
+              <div class="home-album-meta">
+                <h3 class="home-album-title" title="${esc(item.title)}">${esc(item.title)}</h3>
+                <p class="home-album-artist">${esc(item.author || item.artist || 'Curated track')}</p>
+              </div>
+            </article>
+          `;
+        }).join('');
       } else {
         recSection.style.display = 'none';
       }
     }
 
-    const recentItems = st.hist.slice(0, 4);
-    recentList.innerHTML = recentItems.length
-      ? recentItems.map(item => `
-        <div class="recent-row" onclick="S.quick('${quoteJs(item.title)}')">
-          <div class="recent-art" style="background:linear-gradient(135deg, #4f46e5, #06b6d4)">
-            ${item.thumbnail ? `<img src="${item.thumbnail}" alt="${esc(item.title)} thumbnail" loading="lazy" onload="this.classList.add('loaded')">` : '<i class="fas fa-music"></i>'}
-          </div>
-          <div class="recent-copy">
-            <h3>${esc(item.title)}</h3>
-            <p>${esc(item.author || 'Recently played')}</p>
-          </div>
-          <button class="mini-play" onclick="event.stopPropagation();S.quick('${quoteJs(item.title)}')"><i class="fas fa-play"></i></button>
-        </div>`).join('')
-      : homeData.recent.map(item => `
-        <div class="recent-row">
-          <div class="recent-art" style="background:${item.accent}">
-            <img src="${thumbUrl(item.videoId)}" alt="${esc(item.title)} thumbnail" loading="lazy" onload="this.classList.add('loaded')">
-          </div>
-          <div class="recent-copy">
-            <h3>${esc(item.title)}</h3>
-            <p>${esc(item.artist)} • ${esc(item.time)}</p>
-          </div>
-          <button class="mini-play" onclick="event.stopPropagation();S.quick('${esc(item.title).replace(/'/g, "\\'")}')"><i class="fas fa-play"></i></button>
-        </div>`).join('');
-
-    playlistGrid.innerHTML = homeData.playlists.map(item => `
-      <article class="playlist-card">
-        <div class="playlist-art" style="background:${item.accent}">
-          <img src="${thumbUrl(item.videoId)}" alt="${esc(item.title)} thumbnail" loading="lazy" onload="this.classList.add('loaded')">
-        </div>
-        <div class="playlist-copy">
-          <h3>${esc(item.title)}</h3>
-          <p>${esc(item.description)}</p>
-        </div>
-      </article>`).join('');
-
-    if (artistRow) {
-      artistRow.innerHTML = homeData.artists.map(artist => `
-        <div class="artist-pill">
-          <div class="artist-avatar" style="background:${'linear-gradient(135deg, #c0392b, #7c3aed)'}">
-            <img src="${thumbUrl(artist.videoId)}" alt="${esc(artist.name)}" loading="lazy" onload="this.classList.add('loaded')">
-          </div>
-          <div class="artist-info">
-            <div class="artist-name">${esc(artist.name)}</div>
-            <div class="artist-genre">${esc(artist.genre)}</div>
-            <div class="artist-bio">${esc(artist.bio)}</div>
-            <div class="artist-songs">
-              ${artist.songs.map(song => `<span>${esc(song.title)}</span>`).join('')}
-            </div>
-          </div>
-        </div>`).join('');
+    // 4. Render Right-Side Panel (Curator Profile + Side Feed)
+    const curatorName = document.getElementById('homeCuratorName');
+    const curatorAvatar = document.getElementById('homeCuratorAvatar');
+    if (curatorName) {
+      const u = st.user?.name && st.user.name !== 'Guest' ? st.user.name : 'Sandro Tavartkiladze';
+      curatorName.textContent = u;
+      if (curatorAvatar) curatorAvatar.textContent = u.charAt(0).toUpperCase();
     }
+
+    renderSideFeed('playlists');
   }
 
   function renderTrending() {
@@ -2010,22 +2338,22 @@
     }
   }
 
-  function fmt(s) { if (isNaN(s)||s<0) return '0:00'; return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
+  function fmt(s) { if (isNaN(s) || s < 0) return '0:00'; return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`; }
 
   function fmtDur(d) {
     if (!d) return '';
     if (typeof d === 'string' && d.includes(':')) return d;
     const s = parseInt(d); if (isNaN(s)) return String(d);
-    return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   }
 
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
   function toast(msg, type = 'info') {
     const c = document.getElementById('toasts'); if (!c) return;
     const t = document.createElement('div');
     t.className = `toast ${type}`;
-    const ic = type==='err'?'circle-exclamation':type==='ok'?'circle-check':'circle-info';
+    const ic = type === 'err' ? 'circle-exclamation' : type === 'ok' ? 'circle-check' : 'circle-info';
     t.innerHTML = `<i class="fas fa-${ic}"></i> ${esc(msg)}`;
     c.appendChild(t);
     setTimeout(() => { t.style.animation = 'tout .3s ease forwards'; setTimeout(() => t.remove(), 300); }, 3200);
@@ -2037,10 +2365,10 @@
     const c = document.getElementById('particles'); if (!c) return;
     for (let i = 0; i < 18; i++) {
       const p = document.createElement('div'); p.className = 'pt';
-      p.style.left = Math.random()*100+'%';
-      p.style.animationDuration = (16+Math.random()*22)+'s';
-      p.style.animationDelay = (-Math.random()*20)+'s';
-      p.style.width = p.style.height = (1+Math.random()*2)+'px';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (16 + Math.random() * 22) + 's';
+      p.style.animationDelay = (-Math.random() * 20) + 's';
+      p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
       c.appendChild(p);
     }
   }
@@ -2066,7 +2394,7 @@
     });
   }
 
-  window.triggerPageTransition = function(targetUrl) {
+  window.triggerPageTransition = function (targetUrl) {
     const overlay = document.getElementById('pageTransitionOverlay');
     const blob = document.getElementById('pageTransitionBlob');
     if (overlay && blob) {
@@ -2084,7 +2412,7 @@
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if (e.code === 'Space') { e.preventDefault(); S.pp(); }
     if (e.code === 'ArrowRight' && e.altKey) { e.preventDefault(); S.next(); }
-    if (e.code === 'ArrowLeft'  && e.altKey) { e.preventDefault(); S.prev(); }
+    if (e.code === 'ArrowLeft' && e.altKey) { e.preventDefault(); S.prev(); }
     if (e.code === 'KeyS' && !e.ctrlKey && !e.metaKey) { e.preventDefault(); S.tab('search'); }
     if (e.code === 'Escape' && st.expanded) { e.preventDefault(); S.expand(); }
   });
@@ -2157,7 +2485,7 @@
             const offset = details.seekOffset || 10;
             try {
               yt.seekTo(Math.max(0, yt.getCurrentTime() - offset), true);
-            } catch (e) {}
+            } catch (e) { }
           }
         });
         navigator.mediaSession.setActionHandler('seekforward', (details) => {
@@ -2165,7 +2493,7 @@
             const offset = details.seekOffset || 10;
             try {
               yt.seekTo(Math.min(yt.getDuration(), yt.getCurrentTime() + offset), true);
-            } catch (e) {}
+            } catch (e) { }
           }
         });
       } catch (e) {
@@ -2246,7 +2574,7 @@
       // Initialise CSS custom property for the premium volume track fill (Task 4.2)
       volRng.style.setProperty('--vol-pct', Math.round(st.vol * 100) + '%');
     }
-    
+
     updateAccountUI();
     // applyTheme();
     renderPlaylistDrawer();

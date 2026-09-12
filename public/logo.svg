@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <!-- Arm 1: Top 90° Arc -->
+  <path d="M 30.909,30.909 A 27,27 0 0,1 69.091,30.909" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+
+  <!-- Arm 2: Lower-Right 90° Arc -->
+  <path d="M 76.080,43.012 A 27,27 0 0,1 56.988,76.080" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+
+  <!-- Arm 3: Lower-Left 90° Arc -->
+  <path d="M 43.012,76.080 A 27,27 0 0,1 23.920,43.012" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" />
+</svg>
