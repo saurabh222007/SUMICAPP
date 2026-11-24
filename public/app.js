@@ -1107,30 +1107,16 @@
     tab(name) {
       st.tab = name;
       document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.spec-tab-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-tab') === name);
+      document.querySelectorAll('.sidebar-nav-item[data-tab]').forEach(b => {
+        const isActive = b.getAttribute('data-tab') === name;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-current', isActive ? 'page' : 'false');
       });
       document.getElementById(`pane-${name}`)?.classList.add('active');
-      const activeBtn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        const isActive = btn === activeBtn;
-        btn.classList.toggle('active', isActive);
-        btn.setAttribute('aria-current', isActive ? 'page' : 'false');
-      });
 
-      const breadcrumb = document.getElementById('headerBreadcrumb');
-      if (breadcrumb) {
-        const labels = {
-          home: 'Discover your sound',
-          search: 'Search & Explore',
-          trending: 'Trending Hits & Charts',
-          playlist: 'My Playlists',
-          imported: 'Import Music',
-          liked: 'Liked Songs',
-          queue: 'Up Next Queue'
-        };
-        breadcrumb.textContent = labels[name] || 'Discover your sound';
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar')?.classList.remove('open');
+        document.getElementById('sidebarBackdrop')?.classList.remove('active');
       }
 
       if (name === 'search') setTimeout(() => document.getElementById('searchQ')?.focus(), 80);
@@ -1371,7 +1357,18 @@
     },
 
     toggleSidebar() {
-      // Sidebar is now purely hover-controlled in CSS
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (!sidebar) return;
+      const isOpen = sidebar.classList.toggle('open');
+      if (window.innerWidth <= 768 && backdrop) {
+        backdrop.classList.toggle('active', isOpen);
+      }
+    },
+
+    scrollForYou(dir) {
+      const row = document.getElementById('homeHeroBanner');
+      if (row) row.scrollBy({ left: dir * 360, behavior: 'smooth' });
     },
 
     playFromQueue(i) {
@@ -1396,12 +1393,12 @@
       }
       grid.innerHTML = st.playlists.map(playlist => `
         <article class="music-card" onclick="S.viewPlaylist('${playlist.id}', 'playlist')">
-          <div class="card-icon" style="background: ${playlist.type === 'imported' ? 'var(--sumic-signal-muted)' : 'var(--sumic-slate)'}; color: ${playlist.type === 'imported' ? 'var(--sumic-signal)' : 'var(--sumic-silver)'}; width: 48px; height: 48px; border-radius: var(--r-xs); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; border: 1px solid var(--sumic-line);">
+          <div class="music-card-icon">
             <i class="fas ${playlist.type === 'imported' ? 'fa-file-import' : 'fa-list'}"></i>
           </div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: var(--sumic-paper);">${esc(playlist.title)}</h3>
-          <p style="color: var(--sumic-muted); font-size: 0.85rem;">${playlist.tracks.length} tracks • ${esc(playlist.owner || 'User')}</p>
-          ${playlist.type === 'imported' ? '<span class="playlist-badge" style="font-size: 10px; background: var(--sumic-signal-muted); color: var(--sumic-signal); padding: 2px 6px; border-radius: 2px; font-weight: bold; margin-top: 8px; display: inline-block; border: 1px solid var(--sumic-signal);">Imported Archive</span>' : ''}
+          <h3 class="music-card-title">${esc(playlist.title)}</h3>
+          <p class="music-card-meta">${playlist.tracks.length} tracks • ${esc(playlist.owner || 'User')}</p>
+          ${playlist.type === 'imported' ? '<span class="music-card-badge">Imported</span>' : ''}
         </article>
       `).join('');
     },
@@ -1419,49 +1416,55 @@
       detailContainer.style.display = 'block';
 
       detailContainer.innerHTML = `
-        <div class="playlist-detail-header" style="margin-bottom: 20px;">
-          <button class="ghost-btn" onclick="S.backToPlaylists()" style="margin-bottom: 15px; padding: 6px 12px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-arrow-left"></i> Back to Playlists</button>
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-              <div class="import-playlist-badge" style="width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: ${playlist.type === 'imported' ? 'linear-gradient(135deg, var(--primary), var(--accent-cool))' : 'linear-gradient(135deg, #4f46e5, #6366f1)'}; color: #000; font-size: 20px;">
+        <div class="playlist-detail-header">
+          <button class="ghost-btn" type="button" onclick="S.backToPlaylists()">
+            <i class="fas fa-arrow-left"></i> Back to Playlists
+          </button>
+          <div class="playlist-detail-top">
+            <div class="playlist-detail-info">
+              <div class="playlist-detail-badge">
                 <i class="fas ${playlist.type === 'imported' ? 'fa-file-import' : 'fa-music'}"></i>
               </div>
               <div>
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                  <h2 id="detailPlaylistTitle" style="font-size: 1.6rem; font-weight: 800; margin: 0; color: var(--t1);">${esc(playlist.title)}</h2>
-                  <button class="ghost-btn" onclick="S.startRenamePlaylist('${playlist.id}', 'playlist')" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-edit"></i> Rename</button>
-                  ${playlist.type === 'imported' ? `<button class="danger-btn" onclick="S.deletePlaylist('${playlist.id}', 'playlist')" style="padding: 4px 8px; font-size: 11px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-trash"></i> Delete</button>` : ''}
+                <div class="playlist-detail-title-row">
+                  <h2 id="detailPlaylistTitle">${esc(playlist.title)}</h2>
+                  <button class="ghost-btn" type="button" onclick="S.startRenamePlaylist('${playlist.id}', 'playlist')">
+                    <i class="fas fa-edit"></i> Rename
+                  </button>
+                  ${playlist.type === 'imported' ? `<button class="danger-btn" type="button" onclick="S.deletePlaylist('${playlist.id}', 'playlist')"><i class="fas fa-trash"></i> Delete</button>` : ''}
                 </div>
-                <p style="color: var(--t2); font-size: 0.88rem; margin: 5px 0 0;">${playlist.tracks.length} tracks • Created by ${esc(playlist.owner || 'User')}</p>
+                <p class="playlist-detail-sub">${playlist.tracks.length} tracks • Created by ${esc(playlist.owner || 'User')}</p>
               </div>
             </div>
-            <div>
-              <button class="go-btn" onclick="S.playPlaylist('${playlist.id}')" style="display: flex; align-items: center; gap: 8px; padding: 12px 24px; font-size: 0.95rem;"><i class="fas fa-play"></i> Play All</button>
-            </div>
+            <button class="primary-btn" type="button" onclick="S.playPlaylist('${playlist.id}')">
+              <i class="fas fa-play"></i> Play All
+            </button>
           </div>
-          
-          <!-- Rename inline form (hidden by default) -->
-          <div id="renameFormContainer-${playlist.id}" class="import-panel" style="display: none; margin-top: 15px; padding: 12px; border: 1px solid rgba(255,255,255,0.08);">
-            <label class="import-label">Rename Playlist</label>
-            <div class="import-field" style="max-width: 400px; display: flex; gap: 8px;">
-              <input type="text" id="renameInput-${playlist.id}" value="${esc(playlist.title)}" style="padding: 8px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--t1); flex: 1; outline: none;">
-              <button class="go-btn" onclick="S.saveRenamePlaylist('${playlist.id}', 'playlist')">Save</button>
-              <button class="danger-btn" onclick="S.cancelRenamePlaylist('${playlist.id}', 'playlist')" style="padding: 8px 12px; border-radius: 8px;">Cancel</button>
+
+          <div id="renameFormContainer-${playlist.id}" class="rename-inline-panel" style="display: none;">
+            <label class="import-label" for="renameInput-${playlist.id}">Rename Playlist</label>
+            <div class="rename-inline-row">
+              <input type="text" id="renameInput-${playlist.id}" value="${esc(playlist.title)}">
+              <button class="primary-btn" type="button" onclick="S.saveRenamePlaylist('${playlist.id}', 'playlist')">Save</button>
+              <button class="ghost-btn" type="button" onclick="S.cancelRenamePlaylist('${playlist.id}', 'playlist')">Cancel</button>
             </div>
           </div>
         </div>
 
-        <div class="import-track-list" style="margin-top: 20px;">
+        <div class="import-track-list">
           ${playlist.tracks.map((track, idx) => `
-            <div class="import-track-item" onclick="S.playTrackFromPlaylist('${playlist.id}', ${idx})" style="display: flex; align-items: center; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02); margin-bottom: 8px; cursor: pointer; justify-content: space-between; transition: background 0.2s;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="import-track-art" style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">${track.thumbnail ? `<img src="${track.thumbnail}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">` : '<i class="fas fa-music"></i>'}</div>
-                <div class="import-track-meta">
-                  <div class="import-track-title" style="font-weight: 600; color: var(--t1); font-size: 0.95rem;">${esc(track.title)}</div>
-                  <div class="import-track-author" style="color: var(--t2); font-size: 0.85rem; margin-top: 2px;">${esc(track.author || 'Playlist track')}</div>
-                </div>
+            <div class="track-item" onclick="S.playTrackFromPlaylist('${playlist.id}', ${idx})">
+              <span class="track-num">${idx + 1}</span>
+              <div class="track-thumb">${track.thumbnail ? `<img src="${track.thumbnail}" alt="" loading="lazy">` : '<i class="fas fa-music"></i>'}</div>
+              <div class="track-info">
+                <div class="track-title">${esc(track.title)}</div>
+                <div class="track-artist">${esc(track.author || 'Playlist track')}</div>
               </div>
-              <button class="mini-play" type="button" onclick="event.stopPropagation();S.playTrackFromPlaylist('${playlist.id}', ${idx})" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--primary); border: none; color: #000; cursor: pointer;"><i class="fas fa-play" style="font-size: 11px;"></i></button>
+              <div class="track-actions">
+                <button class="action-btn play-circle" type="button" onclick="event.stopPropagation();S.playTrackFromPlaylist('${playlist.id}', ${idx})">
+                  <i class="fas fa-play"></i>
+                </button>
+              </div>
             </div>
           `).join('')}
         </div>
@@ -1598,19 +1601,23 @@
     },
 
     filterGenre(genreId) {
-      document.querySelectorAll('.home-sub-btn').forEach(btn => {
+      document.querySelectorAll('.home-sub-btn, .sidebar-genre-item').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-genre') === genreId);
       });
       const catLabel = document.getElementById('homeCurrentCategory');
       const genreObj = (homeData.genres || []).find(g => g.id === genreId);
       if (catLabel) {
-        catLabel.textContent = genreObj ? genreObj.title : 'Curated & Trending';
+        catLabel.textContent = genreObj ? genreObj.title : 'For You';
       }
-      const genreSections = document.querySelectorAll('.home-genre-section');
+      const bentoRow = document.getElementById('homeBentoRow');
+      if (bentoRow) {
+        bentoRow.style.display = genreId === 'all' ? 'grid' : 'none';
+      }
+      const genreSections = document.querySelectorAll('.genre-section');
       genreSections.forEach(sec => {
         const secGenre = sec.getAttribute('data-genre');
         if (genreId === 'all' || !secGenre || secGenre === genreId) {
-          sec.style.display = 'block';
+          sec.style.display = 'flex';
         } else {
           sec.style.display = 'none';
         }
@@ -1876,10 +1883,16 @@
       el.innerHTML = '<div class="empty-hint"><i class="fas fa-music"></i><p>Queue is empty</p><span>Search for songs to add them</span></div>';
     } else {
       el.innerHTML = st.queue.map((t, i) => `
-        <div class="q-item" onclick="S.playFromQueue(${i})">
-          <div class="q-thumb">${t.thumbnail ? `<img src="${t.thumbnail}" alt="" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music\\'></i>'">` : '<i class="fas fa-music"></i>'}</div>
-          <div class="q-info"><div class="q-title">${esc(t.title)}</div><div class="q-by">${esc(t.author || '--')}${t.isAutoplay ? ' <span class="q-badge-autoplay">Autoplay</span>' : ''}</div></div>
-          <button class="q-rm" onclick="event.stopPropagation();S.rmQueue(${i})"><i class="fas fa-times"></i></button>
+        <div class="track-item" onclick="S.playFromQueue(${i})">
+          <span class="track-num">${i + 1}</span>
+          <div class="track-thumb">${t.thumbnail ? `<img src="${t.thumbnail}" alt="" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music\\'></i>'">` : '<i class="fas fa-music"></i>'}</div>
+          <div class="track-info">
+            <div class="track-title">${esc(t.title)}</div>
+            <div class="track-artist">${esc(t.author || '--')}${t.isAutoplay ? ' <span class="q-badge-autoplay">Autoplay</span>' : ''}</div>
+          </div>
+          <div class="track-actions">
+            <button class="action-btn" type="button" onclick="event.stopPropagation();S.rmQueue(${i})"><i class="fas fa-times"></i></button>
+          </div>
         </div>`).join('');
     }
     updQBadge();
@@ -1935,28 +1948,28 @@
       ${artistCard}
       <div class="res-list">
         ${res.map((r, i) => `
-          <div class="res-item" data-vid="${r.id}" data-i="${i + 1}" onclick="S.playAt(${i})">
-            <span class="res-num">${i + 1}</span>
-            <div class="res-thumb">${r.thumbnail ? `<img src="${r.thumbnail}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music\\'></i>'">` : '<i class="fas fa-music"></i>'}</div>
-            <div class="res-info">
-              <div class="res-title">${esc(r.title)}</div>
-              <div class="res-by">${esc(r.author || '')}${r.duration ? ' • ' + fmtDur(r.duration) : ''}</div>
+          <div class="track-item" data-vid="${r.id}" data-i="${i + 1}" onclick="S.playAt(${i})">
+            <span class="track-num">${i + 1}</span>
+            <div class="track-thumb">${r.thumbnail ? `<img src="${r.thumbnail}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music\\'></i>'">` : '<i class="fas fa-music"></i>'}</div>
+            <div class="track-info">
+              <div class="track-title">${esc(r.title)}</div>
+              <div class="track-artist">${esc(r.author || '')}${r.duration ? ' • ' + fmtDur(r.duration) : ''}</div>
             </div>
-            <div class="res-actions">
-              <button class="res-play" onclick="event.stopPropagation();S.playAt(${i})"><i class="fas fa-play"></i></button>
-              <button class="res-queue" onclick="event.stopPropagation();S.addToQueue('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author || '')}','${quoteJs(r.thumbnail || '')}','${r.duration || ''}')"><i class="fas fa-plus"></i></button>
-              <button class="res-like ${isLiked(r.id) ? 'active' : ''}" onclick="event.stopPropagation();S.toggleLike('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author || '')}','${quoteJs(r.thumbnail || '')}','${r.duration || ''}')"><i class="fas fa-heart"></i></button>
+            <div class="track-actions">
+              <button class="action-btn play-circle" type="button" onclick="event.stopPropagation();S.playAt(${i})"><i class="fas fa-play"></i></button>
+              <button class="action-btn" type="button" onclick="event.stopPropagation();S.addToQueue('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author || '')}','${quoteJs(r.thumbnail || '')}','${r.duration || ''}')"><i class="fas fa-plus"></i></button>
+              <button class="action-btn ${isLiked(r.id) ? 'active' : ''}" type="button" onclick="event.stopPropagation();S.toggleLike('${r.id}','${quoteJs(r.title)}','${quoteJs(r.author || '')}','${quoteJs(r.thumbnail || '')}','${r.duration || ''}')"><i class="fas fa-heart"></i></button>
             </div>
           </div>`).join('')}
       </div>`;
   }
 
   function markNow(vid) {
-    document.querySelectorAll('.res-item').forEach(el => {
+    document.querySelectorAll('.track-item').forEach(el => {
       const isNow = el.dataset.vid === vid;
       el.classList.toggle('now', isNow);
-      const num = el.querySelector('.res-num');
-      if (num) num.innerHTML = isNow ? '<i class="fas fa-volume-high" style="font-size:9px;color:var(--rs)"></i>' : el.dataset.i;
+      const num = el.querySelector('.track-num');
+      if (num) num.innerHTML = isNow ? '<i class="fas fa-volume-high" style="font-size:10px;color:var(--accent)"></i>' : el.dataset.i;
     });
   }
 
@@ -2001,16 +2014,17 @@
     wrap.innerHTML = `
       <div class="liked-list">
         ${st.liked.map((track, index) => `
-          <div class="import-track-item" onclick="S.playLiked(${index})">
-            <div class="import-track-art">${track.thumbnail ? `<img src="${track.thumbnail}" alt="" loading="lazy">` : '<i class="fas fa-music"></i>'}</div>
-            <div class="import-track-meta">
-              <div class="import-track-title">${esc(track.title)}</div>
-              <div class="import-track-author">${esc(track.author || 'Liked song')}</div>
+          <div class="track-item" onclick="S.playLiked(${index})">
+            <span class="track-num">${index + 1}</span>
+            <div class="track-thumb">${track.thumbnail ? `<img src="${track.thumbnail}" alt="" loading="lazy">` : '<i class="fas fa-music"></i>'}</div>
+            <div class="track-info">
+              <div class="track-title">${esc(track.title)}</div>
+              <div class="track-artist">${esc(track.author || 'Liked song')}</div>
             </div>
-            <div class="res-actions">
-              <button class="res-play" type="button" onclick="event.stopPropagation();S.playLiked(${index})"><i class="fas fa-play"></i></button>
-              <button class="res-queue" type="button" onclick="event.stopPropagation();S.addToQueue('${track.id}','${quoteJs(track.title)}','${quoteJs(track.author || '')}','${quoteJs(track.thumbnail || '')}','${track.duration || ''}')"><i class="fas fa-plus"></i></button>
-              <button class="res-like active" type="button" onclick="event.stopPropagation();S.removeLiked(${index})"><i class="fas fa-heart"></i></button>
+            <div class="track-actions">
+              <button class="action-btn play-circle" type="button" onclick="event.stopPropagation();S.playLiked(${index})"><i class="fas fa-play"></i></button>
+              <button class="action-btn" type="button" onclick="event.stopPropagation();S.addToQueue('${track.id}','${quoteJs(track.title)}','${quoteJs(track.author || '')}','${quoteJs(track.thumbnail || '')}','${track.duration || ''}')"><i class="fas fa-plus"></i></button>
+              <button class="action-btn active" type="button" onclick="event.stopPropagation();S.removeLiked(${index})"><i class="fas fa-heart"></i></button>
             </div>
           </div>`).join('')}
       </div>`;
@@ -2049,42 +2063,46 @@
 
         wrap.innerHTML = `
           <div class="import-playlist-card">
-            <button class="ghost-btn" onclick="S.backToImportedPlaylists()" style="margin-bottom: 15px; padding: 6px 12px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-arrow-left"></i> Back to Imported Playlists</button>
-            <div class="import-playlist-header" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; align-items: center;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="import-playlist-badge" style="width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--accent-cool)); color: #000; font-size: 20px;"><i class="fas fa-file-import"></i></div>
+            <button class="ghost-btn" type="button" onclick="S.backToImportedPlaylists()">
+              <i class="fas fa-arrow-left"></i> Back to Imported Playlists
+            </button>
+            <div class="playlist-detail-top">
+              <div class="playlist-detail-info">
+                <div class="playlist-detail-badge"><i class="fas fa-file-import"></i></div>
                 <div>
-                  <h3 id="importedDetailTitle" style="font-size: 1.3rem; margin: 0; color: var(--t1);">${esc(playlist.title)}</h3>
-                  <p style="color: var(--t2); font-size: 0.85rem; margin-top: 4px;">${esc(playlist.owner)} • ${playlist.tracks.length} tracks</p>
+                  <h3 id="importedDetailTitle">${esc(playlist.title)}</h3>
+                  <p class="playlist-detail-sub">${esc(playlist.owner)} • ${playlist.tracks.length} tracks</p>
                 </div>
               </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="go-btn" onclick="S.playPlaylist('${playlist.id}')" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;"><i class="fas fa-play"></i> Play All</button>
-                <button class="ghost-btn" onclick="S.startRenamePlaylist('${playlist.id}', 'imported-detail')" style="padding: 8px 12px;"><i class="fas fa-edit"></i> Rename</button>
+              <div class="track-actions">
+                <button class="primary-btn" type="button" onclick="S.playPlaylist('${playlist.id}')"><i class="fas fa-play"></i> Play All</button>
+                <button class="ghost-btn" type="button" onclick="S.startRenamePlaylist('${playlist.id}', 'imported-detail')"><i class="fas fa-edit"></i> Rename</button>
               </div>
             </div>
 
-            <!-- Inline rename form for detail view -->
-            <div id="renameFormContainer-imported-detail-${playlist.id}" class="import-panel" style="display: none; margin-top: 15px; padding: 12px; border: 1px solid rgba(255,255,255,0.08);">
-              <label class="import-label">Rename Playlist</label>
-              <div class="import-field" style="max-width: 400px; display: flex; gap: 8px;">
-                <input type="text" id="renameInput-imported-detail-${playlist.id}" value="${esc(playlist.title)}" style="padding: 8px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--t1); flex: 1; outline: none;">
-                <button class="go-btn" onclick="S.saveRenamePlaylist('${playlist.id}', 'imported-detail')">Save</button>
-                <button class="danger-btn" onclick="S.cancelRenamePlaylist('${playlist.id}', 'imported-detail')" style="padding: 8px 12px; border-radius: 8px;">Cancel</button>
+            <div id="renameFormContainer-imported-detail-${playlist.id}" class="rename-inline-panel" style="display: none;">
+              <label class="import-label" for="renameInput-imported-detail-${playlist.id}">Rename Playlist</label>
+              <div class="rename-inline-row">
+                <input type="text" id="renameInput-imported-detail-${playlist.id}" value="${esc(playlist.title)}">
+                <button class="primary-btn" type="button" onclick="S.saveRenamePlaylist('${playlist.id}', 'imported-detail')">Save</button>
+                <button class="ghost-btn" type="button" onclick="S.cancelRenamePlaylist('${playlist.id}', 'imported-detail')">Cancel</button>
               </div>
             </div>
 
             <div class="import-track-list" style="margin-top: 20px;">
               ${playlist.tracks.map((track, index) => `
-                <div class="import-track-item" onclick="S.playTrackFromPlaylist('${playlist.id}', ${index})" style="display: flex; align-items: center; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02); margin-bottom: 8px; cursor: pointer; justify-content: space-between; transition: background 0.2s;">
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="import-track-art" style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">${track.thumbnail ? `<img src="${track.thumbnail}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">` : '<i class="fas fa-music"></i>'}</div>
-                    <div class="import-track-meta">
-                      <div class="import-track-title" style="font-weight: 600; color: var(--t1); font-size: 0.95rem;">${esc(track.title)}</div>
-                      <div class="import-track-author" style="color: var(--t2); font-size: 0.85rem; margin-top: 2px;">${esc(track.author || 'Spotify import')}</div>
-                    </div>
+                <div class="track-item" onclick="S.playTrackFromPlaylist('${playlist.id}', ${index})">
+                  <span class="track-num">${index + 1}</span>
+                  <div class="track-thumb">${track.thumbnail ? `<img src="${track.thumbnail}" alt="" loading="lazy">` : '<i class="fas fa-music"></i>'}</div>
+                  <div class="track-info">
+                    <div class="track-title">${esc(track.title)}</div>
+                    <div class="track-artist">${esc(track.author || 'Spotify import')}</div>
                   </div>
-                  <button class="mini-play" type="button" onclick="event.stopPropagation();S.playTrackFromPlaylist('${playlist.id}', ${index})" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--primary); border: none; color: #000; cursor: pointer;"><i class="fas fa-play" style="font-size: 11px;"></i></button>
+                  <div class="track-actions">
+                    <button class="action-btn play-circle" type="button" onclick="event.stopPropagation();S.playTrackFromPlaylist('${playlist.id}', ${index})">
+                      <i class="fas fa-play"></i>
+                    </button>
+                  </div>
                 </div>`).join('')}
             </div>
           </div>`;
@@ -2100,26 +2118,24 @@
     }
 
     wrap.innerHTML = `
-      <div style="margin-top: 15px;">
+      <div>
         <h3 class="sec-label" style="margin-bottom: 12px;">My Imported Playlists</h3>
         <div class="dash-grid">
           ${importedPlaylists.map(playlist => `
-            <article class="music-card" onclick="S.viewImportedPlaylist('${playlist.id}')" style="cursor: pointer; position: relative;">
-              <div class="card-icon" style="background: linear-gradient(135deg, var(--primary), var(--accent-cool)); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px;"><i class="fas fa-file-import" style="color: #000;"></i></div>
-              <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">${esc(playlist.title)}</h3>
-              <p style="color: var(--t2); font-size: 0.85rem;">${playlist.tracks.length} tracks • ${esc(playlist.owner || 'Spotify')}</p>
-              <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;" onclick="event.stopPropagation();">
-                <button class="mini-play" onclick="S.playPlaylist('${playlist.id}')" title="Play playlist" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--primary); border: none; color: #000; cursor: pointer;"><i class="fas fa-play" style="font-size: 11px;"></i></button>
-                <button class="ghost-btn" onclick="S.startRenamePlaylist('${playlist.id}', 'imported')" style="padding: 6px 12px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-edit"></i> Rename</button>
-                <button class="danger-btn" onclick="S.deletePlaylist('${playlist.id}', 'imported')" style="padding: 6px 12px; font-size: 11px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-trash"></i> Delete</button>
+            <article class="music-card" onclick="S.viewImportedPlaylist('${playlist.id}')">
+              <div class="music-card-icon"><i class="fas fa-file-import"></i></div>
+              <h3 class="music-card-title">${esc(playlist.title)}</h3>
+              <p class="music-card-meta">${playlist.tracks.length} tracks • ${esc(playlist.owner || 'Spotify')}</p>
+              <div class="music-card-actions" onclick="event.stopPropagation();">
+                <button class="action-btn play-circle" type="button" onclick="S.playPlaylist('${playlist.id}')" title="Play playlist"><i class="fas fa-play"></i></button>
+                <button class="ghost-btn" type="button" onclick="S.startRenamePlaylist('${playlist.id}', 'imported')"><i class="fas fa-edit"></i> Rename</button>
+                <button class="danger-btn" type="button" onclick="S.deletePlaylist('${playlist.id}', 'imported')"><i class="fas fa-trash"></i></button>
               </div>
-              
-              <!-- Inline rename form for list view -->
-              <div id="renameFormContainer-list-${playlist.id}" class="import-panel" style="display: none; margin-top: 10px; padding: 8px; width: 100%; border: 1px solid rgba(255,255,255,0.08);" onclick="event.stopPropagation();">
-                <div class="import-field" style="display: flex; gap: 5px;">
-                  <input type="text" id="renameInput-list-${playlist.id}" value="${esc(playlist.title)}" style="padding: 6px 10px; font-size: 12px; flex: 1; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--t1); outline: none;">
-                  <button class="go-btn" onclick="S.saveRenamePlaylist('${playlist.id}', 'imported-list')" style="padding: 6px 10px; font-size: 11px;">Save</button>
-                  <button class="danger-btn" onclick="S.cancelRenamePlaylist('${playlist.id}', 'imported')" style="padding: 6px 10px; font-size: 11px; border-radius: 6px;">Cancel</button>
+              <div id="renameFormContainer-list-${playlist.id}" class="rename-inline-panel" style="display: none;" onclick="event.stopPropagation();">
+                <div class="rename-inline-row">
+                  <input type="text" id="renameInput-list-${playlist.id}" value="${esc(playlist.title)}">
+                  <button class="primary-btn" type="button" onclick="S.saveRenamePlaylist('${playlist.id}', 'imported-list')">Save</button>
+                  <button class="ghost-btn" type="button" onclick="S.cancelRenamePlaylist('${playlist.id}', 'imported')">Cancel</button>
                 </div>
               </div>
             </article>
@@ -2165,76 +2181,103 @@
   }
 
   function renderHome() {
-    // 1. Render Hero Banner (Reference inspired: Warm Coral/Amber card with The Weeknd & Curated Playlist info)
-    const heroEl = document.getElementById('homeHeroBanner');
-    if (heroEl && homeData.hero) {
-      const h = homeData.hero;
-      const isHeroLiked = isLiked(h.videoId);
-      heroEl.innerHTML = `
-        <div class="home-hero-content">
-          <div class="home-hero-tag">${esc(h.tag)}</div>
-          <h1 class="home-hero-title">${esc(h.title)}</h1>
-          <p class="home-hero-artists">${esc(h.subtitle)}</p>
-          <div class="home-hero-meta-row">
-            <div class="home-hero-likes"><i class="fas fa-heart"></i> <span>${esc(h.likes)}</span></div>
-            <span class="home-hero-dot">•</span>
-            <div class="home-hero-count">${esc(h.trackCount)}, ${esc(h.duration)}</div>
-          </div>
-          <div class="home-hero-actions">
-            <button class="home-hero-play-btn" type="button" onclick="S.playHeroPlaylist()">
-              <i class="fas fa-play"></i> <span>Play Playlist</span>
-            </button>
-            <button class="home-hero-action-btn ${isHeroLiked ? 'active' : ''}" type="button" aria-label="Like Playlist" onclick="S.toggleLike('${h.videoId}','${quoteJs(h.title)}','${quoteJs(h.artist)}','${quoteJs(h.artistImage)}')">
-              <i class="fas fa-heart"></i>
-            </button>
-            <button class="home-hero-action-btn" type="button" aria-label="Queue Playlist" onclick="S.addToQueue('${h.videoId}','${quoteJs(h.title)}','${quoteJs(h.artist)}','${quoteJs(h.artistImage)}')">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="home-hero-visual">
-          <img class="home-hero-artist-img" src="${h.artistImage}" alt="${esc(h.title)}" loading="eager">
-          <div class="home-hero-glow"></div>
-        </div>
-      `;
-      // Set atmospheric tone based on content genre
-      const tag = (h.tag || '').toLowerCase();
-      const toneMap = { 'r&b': 'coral', 'rnb': 'coral', 'electronic': 'violet', 'edm': 'violet', 'lo-fi': 'teal', 'chill': 'teal', 'indie': 'teal', 'pop': 'amber', 'hip-hop': 'indigo', 'hiphop': 'indigo', 'rock': 'rose' };
-      const tone = Object.entries(toneMap).find(([k]) => tag.includes(k))?.[1] || 'indigo';
-      heroEl.setAttribute('data-tone', tone);
+    // 1. Render "For You" Horizontal Album Cards
+    const forYouEl = document.getElementById('homeHeroBanner');
+    if (forYouEl && homeData.genres) {
+      const forYouTracks = [
+        ...(homeData.genres[0]?.tracks || []),
+        ...(homeData.genres[1]?.tracks || []).slice(0, 4)
+      ];
+      forYouEl.innerHTML = forYouTracks.map(track => {
+        const art = thumbUrl(track.videoId);
+        return `
+          <article class="album-card" onclick="S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
+            <div class="album-card-art">
+              <img src="${art}" alt="${esc(track.title)}" loading="lazy">
+              <button class="album-card-play" type="button" aria-label="Play ${esc(track.title)}" onclick="event.stopPropagation();S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
+                <i class="fas fa-play"></i>
+              </button>
+            </div>
+            <div class="album-card-title" title="${esc(track.title)}">${esc(track.title)}</div>
+            <div class="album-card-artist">${esc(track.artist)}</div>
+          </article>
+        `;
+      }).join('');
     }
 
-    // 2. Render Genre Streams (7 Genre Sections, 40+ songs with verified IDs, zero duplicates)
+    // 2. Render Top Songs (Bento Left)
+    const topSongsEl = document.getElementById('homeTopSongs');
+    if (topSongsEl && homeData.trending) {
+      topSongsEl.innerHTML = homeData.trending.slice(0, 4).map((song, idx) => {
+        const art = thumbUrl(song.videoId);
+        const liked = isLiked(song.videoId);
+        return `
+          <div class="track-item" onclick="S.playTrack('${song.videoId}','${quoteJs(song.title)}','${quoteJs(song.artist)}','${quoteJs(art)}')">
+            <span class="track-num">${idx + 1}</span>
+            <div class="track-thumb">
+              <img src="${art}" alt="${esc(song.title)}" loading="lazy">
+            </div>
+            <div class="track-info">
+              <div class="track-title">${esc(song.title)}</div>
+              <div class="track-artist">${esc(song.artist)}</div>
+            </div>
+            <div class="track-actions">
+              <button class="action-btn play-circle" type="button" aria-label="Play ${esc(song.title)}" onclick="event.stopPropagation();S.playTrack('${song.videoId}','${quoteJs(song.title)}','${quoteJs(song.artist)}','${quoteJs(art)}')">
+                <i class="fas fa-play"></i>
+              </button>
+              <button class="action-btn" type="button" aria-label="Queue ${esc(song.title)}" onclick="event.stopPropagation();S.addToQueue('${song.videoId}','${quoteJs(song.title)}','${quoteJs(song.artist)}','${quoteJs(art)}')">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button class="action-btn ${liked ? 'active' : ''}" type="button" aria-label="Like ${esc(song.title)}" onclick="event.stopPropagation();S.toggleLike('${song.videoId}','${quoteJs(song.title)}','${quoteJs(song.artist)}','${quoteJs(art)}')">
+                <i class="fas fa-heart"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. Render Playlists 2x2 Grid (Bento Right)
+    const playlistsGridEl = document.getElementById('homePlaylistsGrid');
+    if (playlistsGridEl && homeData.playlists) {
+      playlistsGridEl.innerHTML = homeData.playlists.slice(0, 4).map(pl => {
+        const art = thumbUrl(pl.videoId);
+        return `
+          <article class="home-playlist-tile" onclick="S.playTrack('${pl.videoId}','${quoteJs(pl.title)}','${quoteJs(pl.description)}','${quoteJs(art)}')">
+            <div class="home-playlist-tile-title">${esc(pl.title)}</div>
+            <div class="home-playlist-tile-sub">
+              <span>${esc(pl.description)}</span>
+              <i class="fas fa-play"></i>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // 4. Render Genre Streams
     const streamsEl = document.getElementById('homeGenreStreams');
     if (streamsEl && homeData.genres) {
       streamsEl.innerHTML = homeData.genres.map(genre => `
-        <section class="home-genre-section" id="genre-${genre.id}" data-genre="${genre.id}">
-          <div class="home-section-header">
-            <div>
-              <span class="home-section-eyebrow">${esc(genre.id.toUpperCase())} SELECTION</span>
-              <h2 class="home-section-heading">${esc(genre.title)}</h2>
-              <p class="home-section-desc">${esc(genre.subtitle)}</p>
-            </div>
-            <button class="home-section-more" type="button" onclick="S.playGenreAll('${genre.id}')">
+        <section class="genre-section" id="genre-${genre.id}" data-genre="${genre.id}">
+          <div class="section-header">
+            <h2 class="section-title">${esc(genre.title)}</h2>
+            <button class="section-more" type="button" onclick="S.playGenreAll('${genre.id}')">
               <span>Play All</span> <i class="fas fa-play"></i>
             </button>
           </div>
-          <div class="home-tracks-grid">
-            ${genre.tracks.map((track, idx) => {
+          <div class="track-grid">
+            ${genre.tracks.map(track => {
               const art = thumbUrl(track.videoId);
               return `
-                <article class="home-album-card" onclick="S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
-                  <div class="home-album-art-wrap">
-                    <img class="home-album-art" src="${art}" alt="${esc(track.title)}" loading="lazy">
-                    <span class="home-album-badge">${esc(track.tag || 'Track')}</span>
-                    <button class="home-album-play" type="button" aria-label="Play ${esc(track.title)}" onclick="event.stopPropagation();S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
+                <article class="album-card" onclick="S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
+                  <div class="album-card-art">
+                    <img src="${art}" alt="${esc(track.title)}" loading="lazy">
+                    <button class="album-card-play" type="button" aria-label="Play ${esc(track.title)}" onclick="event.stopPropagation();S.playTrack('${track.videoId}','${quoteJs(track.title)}','${quoteJs(track.artist)}','${quoteJs(art)}')">
                       <i class="fas fa-play"></i>
                     </button>
                   </div>
-                  <div class="home-album-meta">
-                    <h3 class="home-album-title" title="${esc(track.title)}">${esc(track.title)}</h3>
-                    <p class="home-album-artist">${esc(track.artist)}</p>
-                  </div>
+                  <div class="album-card-title" title="${esc(track.title)}">${esc(track.title)}</div>
+                  <div class="album-card-artist">${esc(track.artist)}</div>
                 </article>
               `;
             }).join('')}
@@ -2243,7 +2286,7 @@
       `).join('');
     }
 
-    // 3. Render Dynamic Recommendations (when available)
+    // 5. Render Dynamic Recommendations (when available)
     const recSection = document.getElementById('recommendationsSection');
     const recGrid = document.getElementById('recommendationsGrid');
     const recLabel = document.getElementById('recommendationLabel');
@@ -2252,23 +2295,21 @@
       if (st.recommendations && st.recommendations.length > 0) {
         recSection.style.display = 'block';
         if (recLabel && recTitle && st.recAnchor) {
-          recLabel.textContent = `Tailored For You`;
-          recTitle.textContent = `Based on your interest in "${esc(st.recAnchor)}"`;
+          recLabel.textContent = 'Tailored For You';
+          recTitle.textContent = `Based on "${esc(st.recAnchor)}"`;
         }
         recGrid.innerHTML = st.recommendations.map(item => {
           const art = item.thumbnail || thumbUrl(item.id);
           return `
-            <article class="home-album-card" onclick="S.playTrack('${item.id}','${quoteJs(item.title)}','${quoteJs(item.author || item.artist)}','${quoteJs(art)}')">
-              <div class="home-album-art-wrap">
-                <img class="home-album-art" src="${art}" alt="${esc(item.title)}" loading="lazy">
-                <button class="home-album-play" type="button" aria-label="Play ${esc(item.title)}" onclick="event.stopPropagation();S.playTrack('${item.id}','${quoteJs(item.title)}','${quoteJs(item.author || item.artist)}','${quoteJs(art)}')">
+            <article class="album-card" onclick="S.playTrack('${item.id}','${quoteJs(item.title)}','${quoteJs(item.author || item.artist)}','${quoteJs(art)}')">
+              <div class="album-card-art">
+                <img src="${art}" alt="${esc(item.title)}" loading="lazy">
+                <button class="album-card-play" type="button" aria-label="Play ${esc(item.title)}" onclick="event.stopPropagation();S.playTrack('${item.id}','${quoteJs(item.title)}','${quoteJs(item.author || item.artist)}','${quoteJs(art)}')">
                   <i class="fas fa-play"></i>
                 </button>
               </div>
-              <div class="home-album-meta">
-                <h3 class="home-album-title" title="${esc(item.title)}">${esc(item.title)}</h3>
-                <p class="home-album-artist">${esc(item.author || item.artist || 'Curated track')}</p>
-              </div>
+              <div class="album-card-title" title="${esc(item.title)}">${esc(item.title)}</div>
+              <div class="album-card-artist">${esc(item.author || item.artist || 'Curated track')}</div>
             </article>
           `;
         }).join('');
@@ -2276,17 +2317,6 @@
         recSection.style.display = 'none';
       }
     }
-
-    // 4. Render Right-Side Panel (Curator Profile + Side Feed)
-    const curatorName = document.getElementById('homeCuratorName');
-    const curatorAvatar = document.getElementById('homeCuratorAvatar');
-    if (curatorName) {
-      const u = st.user?.name && st.user.name !== 'Guest' ? st.user.name : 'Sandro Tavartkiladze';
-      curatorName.textContent = u;
-      if (curatorAvatar) curatorAvatar.textContent = u.charAt(0).toUpperCase();
-    }
-
-    renderSideFeed('playlists');
   }
 
   function renderTrending() {
@@ -2303,25 +2333,24 @@
 
     trendPlaylistsGrid.innerHTML = mockTrendPlaylists.map((p, idx) => `
       <article class="trend-card" onclick="S.playQuery('${quoteJs(p.query)}')">
-        <span>${idx + 1}</span>
+        <span>0${idx + 1}</span>
         <h3>${esc(p.title)}</h3>
         <p>${esc(p.desc)}</p>
       </article>`).join('');
 
-    trendSongsList.innerHTML = homeData.trending.map(song => `
-      <li onclick="S.quick('${quoteJs(song.title)}')">
-        <div class="trend-song-item" style="display:flex; align-items:center; width:100%; justify-content:space-between; cursor:pointer;">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div style="width:40px; height:40px; border-radius:6px; background:#222; overflow:hidden; position:relative;">
-              <img src="${thumbUrl(song.videoId)}" style="width:100%; height:100%; object-fit:cover; display:block;" onload="this.classList.add('loaded')">
-            </div>
-            <div>
-              <strong style="display:block; color:#fff; font-size:0.95rem;">${esc(song.title)}</strong>
-              <span style="color:var(--t2); font-size:0.8rem;">${esc(song.artist)}</span>
-            </div>
-          </div>
-          <button class="mini-play" style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--primary); border:none; color:#000; cursor:pointer;" onclick="event.stopPropagation();S.quick('${quoteJs(song.title)}')">
-            <i class="fas fa-play" style="font-size:10px;"></i>
+    trendSongsList.innerHTML = homeData.trending.map((song, idx) => `
+      <li class="track-item" onclick="S.quick('${quoteJs(song.title)}')">
+        <span class="track-num">${idx + 1}</span>
+        <div class="track-thumb">
+          <img src="${thumbUrl(song.videoId)}" alt="${esc(song.title)}" loading="lazy">
+        </div>
+        <div class="track-info">
+          <div class="track-title">${esc(song.title)}</div>
+          <div class="track-artist">${esc(song.artist)}</div>
+        </div>
+        <div class="track-actions">
+          <button class="action-btn play-circle" type="button" onclick="event.stopPropagation();S.quick('${quoteJs(song.title)}')">
+            <i class="fas fa-play"></i>
           </button>
         </div>
       </li>`).join('');
@@ -2359,52 +2388,12 @@
     setTimeout(() => { t.style.animation = 'tout .3s ease forwards'; setTimeout(() => t.remove(), 300); }, 3200);
   }
 
-  function particles() {
-    const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-    if (isMobile) return;
-    const c = document.getElementById('particles'); if (!c) return;
-    for (let i = 0; i < 18; i++) {
-      const p = document.createElement('div'); p.className = 'pt';
-      p.style.left = Math.random() * 100 + '%';
-      p.style.animationDuration = (16 + Math.random() * 22) + 's';
-      p.style.animationDelay = (-Math.random() * 20) + 's';
-      p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
-      c.appendChild(p);
-    }
-  }
+  function particles() {}
 
-  /* ── FLUID PAGE TRANSITION OVERLAY ── */
-  function initPageTransitionOverlay() {
-    // Create overlay if it doesn't already exist (shared CSS is in styles.css)
-    if (document.getElementById('pageTransitionOverlay')) return;
-
-    const overlay = document.createElement('div');
-    overlay.id = 'pageTransitionOverlay';
-    const blob = document.createElement('div');
-    blob.id = 'pageTransitionBlob';
-    overlay.appendChild(blob);
-    document.body.appendChild(overlay);
-
-    // Fade the overlay out so the app is revealed
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        overlay.classList.add('fade-out');
-        setTimeout(() => { overlay.style.display = 'none'; }, 750);
-      }, 60);
-    });
-  }
+  function initPageTransitionOverlay() {}
 
   window.triggerPageTransition = function (targetUrl) {
-    const overlay = document.getElementById('pageTransitionOverlay');
-    const blob = document.getElementById('pageTransitionBlob');
-    if (overlay && blob) {
-      overlay.style.display = 'flex';
-      overlay.offsetHeight; // force reflow
-      overlay.classList.remove('fade-out');
-      setTimeout(() => { window.location.href = targetUrl; }, 850);
-    } else {
-      window.location.href = targetUrl;
-    }
+    window.location.href = targetUrl;
   };
 
   /* ── KEYBOARD ── */
@@ -2548,8 +2537,10 @@
       }
     });
 
-    particles();
-    initPageTransitionOverlay();
+    if (window.innerWidth <= 768) {
+      document.getElementById('sidebar')?.classList.remove('open');
+    }
+
     renderHome();
     renderTrending();
     renderRecent();

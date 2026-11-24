@@ -3,93 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sumic — The Listening Room</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <title>Sumic — Music, Redefined</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="logo_app_icon.svg">
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="card-nav.css">
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "postprocessing": "https://unpkg.com/postprocessing@6.33.5/build/postprocessing.esm.js"
-      }
-    }
-  </script>
 </head>
 <body>
   <div class="auth-shell" id="authShell">
-    <div class="dither-container" id="ditherBg"></div>
-    
-    <div class="auth-split-container">
-      <!-- Left side: Login card -->
-      <div class="auth-left-pane">
-        <div class="auth-card">
-          <div class="auth-brand" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; justify-content: flex-start; gap: 14px; margin-bottom: 8px;">
-              <div class="brand-logo sumic-logo-container" style="width: 52px; height: 52px; flex-shrink: 0; background: var(--sumic-graphite); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--sumic-line);">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 32px; height: 32px;">
-                  <path d="M 30.909,30.909 A 27,27 0 0,1 69.091,30.909" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
-                  <path d="M 76.080,43.012 A 27,27 0 0,1 56.988,76.080" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
-                  <path d="M 43.012,76.080 A 27,27 0 0,1 23.920,43.012" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
-                </svg>
+    <div class="ghost-fibers-bg" id="ghostFibersBg"></div>
+    <header class="landing-nav">
+      <span class="landing-nav-meta">Web &amp; Android Audio Player</span>
+      <div class="landing-nav-actions">
+        <a class="landing-nav-link" href="https://github.com/saurabh222007/sumic" target="_blank" rel="noopener">
+          <i class="fab fa-github"></i>
+          <span>GitHub</span>
+        </a>
+        <a id="navGetAppBtn" class="landing-nav-cta" href="https://github.com/saurabh222007/sumic/releases/latest" target="_blank" rel="noopener">
+          <i class="fas fa-download"></i>
+          <span>Get App</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="landing-grid">
+      <!-- Left: Hero & Brand Showcase -->
+      <section class="landing-hero">
+        <div class="hero-brand-lockup">
+          <svg class="hero-brand-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M 30.909,30.909 A 27,27 0 0,1 69.091,30.909" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+            <path d="M 76.080,43.012 A 27,27 0 0,1 56.988,76.080" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+            <path d="M 43.012,76.080 A 27,27 0 0,1 23.920,43.012" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+          </svg>
+          <div class="hero-brand-text">
+            <span class="hero-brand-wordmark">SUMIC</span>
+            <span class="hero-brand-cycle" id="heroBrandCycle">Tracks</span>
+          </div>
+        </div>
+
+        <div class="hero-divider"></div>
+
+        <h1 class="landing-title">Music, redefined for quiet focus.</h1>
+        <p class="landing-desc">
+          Search any track, stream instantly, follow synced lyrics, and import your Spotify playlists — all in one clean monochrome space with zero ads.
+        </p>
+
+        <div class="landing-hero-actions">
+          <a id="apkDownloadBtn" class="landing-getapp-btn" href="https://github.com/saurabh222007/sumic/releases/latest" target="_blank" rel="noopener">
+            <i class="fab fa-android"></i>
+            <span>Get Android App</span>
+            <span class="landing-version-tag" id="apkVersionTag">Latest Build</span>
+          </a>
+          <button class="landing-guest-link" type="button" onclick="document.getElementById('userName').focus()">
+            Continue on web <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- GitHub Repo Card -->
+        <a class="github-repo-card" href="https://github.com/saurabh222007/sumic" target="_blank" rel="noopener">
+          <div class="github-repo-top">
+            <div class="github-repo-id">
+              <i class="fab fa-github"></i>
+              <span>saurabh222007/sumic</span>
+            </div>
+            <div class="github-repo-stars" id="ghStarsBadge">
+              <i class="fas fa-star"></i>
+              <span id="ghStarCount">--</span>
+            </div>
+          </div>
+          <p class="github-repo-desc" id="ghRepoDesc">
+            Open-source music streaming app built for clean listening across Android and Web.
+          </p>
+        </a>
+
+        <div class="landing-features">
+          <div class="landing-feature-item">
+            <i class="fas fa-bolt"></i>
+            <div>
+              <strong>Instant Search</strong>
+              <span>Play any song in seconds</span>
+            </div>
+          </div>
+          <div class="landing-feature-item">
+            <i class="fas fa-align-left"></i>
+            <div>
+              <strong>Synced Lyrics</strong>
+              <span>Real-time line-by-line follow</span>
+            </div>
+          </div>
+          <div class="landing-feature-item">
+            <i class="fas fa-file-import"></i>
+            <div>
+              <strong>Playlist Import</strong>
+              <span>Bring Spotify &amp; YouTube lists</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center: Monochrome Product Showcase (visible on wide screens) -->
+      <section class="landing-showcase" aria-label="Sumic Player Preview">
+        <div class="showcase-window">
+          <div class="showcase-topbar">
+            <div class="showcase-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="showcase-label">Now Playing</span>
+            <span class="showcase-badge">Lossless UI</span>
+          </div>
+
+          <div class="showcase-now">
+            <div class="showcase-art">
+              <img src="https://img.youtube.com/vi/4NRXx6U8ABQ/mqdefault.jpg" alt="Blinding Lights" loading="lazy">
+            </div>
+            <div class="showcase-now-meta">
+              <div class="showcase-track-title">Blinding Lights</div>
+              <div class="showcase-track-artist">The Weeknd • After Hours</div>
+              <div class="showcase-progress">
+                <div class="showcase-progress-fill"></div>
               </div>
-              <div class="brand-title" style="margin: 0; font-size: 1.4rem;"><span>SU</span>MIC</div>
+              <div class="showcase-time">
+                <span>1:24</span>
+                <span>3:20</span>
+              </div>
             </div>
-            <div class="brand-sub">music, redefined</div>
           </div>
-          <div class="home-apk-ad" id="loginApkAd">
-            <img src="logo_app_icon.svg" alt="Sumic" />
-            <div class="home-apk-ad-info">
-              <div class="apk-ad-title">Download Android App</div>
-              <div class="apk-ad-sub">by Saurabh222007</div>
+
+          <div class="showcase-lyric-box">
+            <span class="showcase-lyric-dim">I've been tryna call</span>
+            <span class="showcase-lyric-active">I've been on my own for long enough</span>
+            <span class="showcase-lyric-dim">Maybe you can show me how to love</span>
+          </div>
+
+          <div class="showcase-queue">
+            <div class="showcase-queue-hd">Up Next</div>
+            <div class="showcase-queue-item">
+              <img src="https://img.youtube.com/vi/TUVcZfQe-Kw/mqdefault.jpg" alt="Levitating" loading="lazy">
+              <div class="showcase-q-info">
+                <strong>Levitating</strong>
+                <span>Dua Lipa</span>
+              </div>
+              <span class="showcase-q-dur">3:23</span>
             </div>
-            <a id="apkDownloadBtn" class="apk-download-btn" href="#" target="_blank">
-              <i class="fas fa-download"></i> Get APK
-            </a>
+            <div class="showcase-queue-item">
+              <img src="https://img.youtube.com/vi/mRD0-GxqHVo/mqdefault.jpg" alt="Heat Waves" loading="lazy">
+              <div class="showcase-q-info">
+                <strong>Heat Waves</strong>
+                <span>Glass Animals</span>
+              </div>
+              <span class="showcase-q-dur">3:58</span>
+            </div>
           </div>
-          <h2>Enter the listening room.</h2>
-          <p>Keep your listening close. Use your name and email, or enter directly as a guest.</p>
+        </div>
+      </section>
+
+      <!-- Right: Clean Login Card -->
+      <section class="landing-login-wrap">
+        <div class="auth-card">
+          <h2 class="auth-heading">Enter the room</h2>
+          <p class="auth-sub">Sign in with your name or continue as a guest.</p>
+
           <form class="auth-form" id="loginForm">
-            <label for="userName">Name</label>
-            <input id="userName" name="name" type="text" placeholder="Curator" autocomplete="name">
-            <label for="userEmail">Email</label>
-            <input id="userEmail" name="email" type="email" placeholder="curator@sumic.audio" autocomplete="email">
+            <div class="auth-field">
+              <label for="userName">Name</label>
+              <input id="userName" name="name" type="text" placeholder="Your name" autocomplete="name">
+            </div>
+            <div class="auth-field">
+              <label for="userEmail">Email <span class="auth-optional">(optional)</span></label>
+              <input id="userEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email">
+            </div>
             <div class="auth-actions">
-              <button class="auth-btn primary" type="submit">Enter Room</button>
+              <button class="auth-btn primary" type="submit">Enter Sumic</button>
               <button class="auth-btn secondary" id="guestBtn" type="button">Continue as guest</button>
             </div>
           </form>
-        </div>
-      </div>
 
-      <!-- Right side: Animated promo texts (TrueFocus + ScrambledText) -->
-      <div class="auth-right-pane">
-        <div class="auth-promo-card">
-          <div id="trueFocusContainer"></div>
-          <div id="scrambledTextContainer"></div>
+          <p class="auth-legal">
+            By continuing, you agree to our <a href="/terms.html">Terms of Service</a> and <a href="/privacy.html">Privacy Policy</a>.
+          </p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   </div>
 
   <script type="module" src="login.js"></script>
-  <script type="module">
-    import { initDither } from './dither-bg.js';
-    const ditherContainer = document.getElementById('ditherBg');
-    if (ditherContainer) {
-      window.sumicDither = initDither(ditherContainer, {
-        waveSpeed: 0.04,
-        waveFrequency: 2.5,
-        waveAmplitude: 0.3,
-        waveColor: [0.12, 0.12, 0.12], // Quiet monochrome graphite wave
-        colorNum: 4,
-        pixelSize: 2,
-        enableMouseInteraction: true,
-        mouseRadius: 1
-      });
-    }
-  </script>
 </body>
 </html>

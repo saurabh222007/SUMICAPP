@@ -7,23 +7,9 @@
   <title>Sumic – Music Streaming</title>
   <meta name="description" content="Sumic — free music streaming. Search and play any song instantly.">
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" rel="stylesheet">
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;700;900&family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="logo_app_icon.svg">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="Dock.css">
-  <link rel="stylesheet" href="card-nav.css">
-  
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "postprocessing": "https://unpkg.com/postprocessing@6.33.5/build/postprocessing.esm.js"
-      }
-    }
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 
 <body>
@@ -33,197 +19,264 @@
   </div>
 
   <div id="app">
-    <div class="dither-container" id="ditherBg"></div>
-    <div class="particles" id="particles"></div>
     <div class="toasts" id="toasts"></div>
     <div class="sr-only" id="liveRegion" aria-live="polite" aria-atomic="true"></div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <!-- ═══ SLIM SIDEBAR ═══ -->
-    <aside class="slim-sidebar" id="sidebar">
-      <div class="slim-sidebar-top">
-        <div class="slim-brand" onclick="S.tab('home')" style="cursor: pointer;" title="Sumic Home">
-          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="slim-logo-svg">
-            <path d="M 30.909,30.909 A 27,27 0 0,1 69.091,30.909" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
-            <path d="M 76.080,43.012 A 27,27 0 0,1 56.988,76.080" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
-            <path d="M 43.012,76.080 A 27,27 0 0,1 23.920,43.012" fill="none" stroke="#F4F2EC" stroke-width="13" stroke-linecap="round" />
+    <!-- ═══ COLLAPSIBLE SIDEBAR ═══ -->
+    <aside class="sidebar open" id="sidebar" aria-label="Sidebar Navigation">
+      <div class="sidebar-header">
+        <button class="sidebar-brand" type="button" onclick="S.tab('home')" title="Sumic Home">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="sidebar-logo-svg">
+            <path d="M 30.909,30.909 A 27,27 0 0,1 69.091,30.909" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+            <path d="M 76.080,43.012 A 27,27 0 0,1 56.988,76.080" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+            <path d="M 43.012,76.080 A 27,27 0 0,1 23.920,43.012" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
           </svg>
+          <span class="sidebar-brand-text">Sumic</span>
+        </button>
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" type="button" onclick="S.toggleSidebar()" title="Toggle sidebar" aria-label="Toggle sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-scroll">
+        <!-- HOME GROUP -->
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">HOME</div>
+          <nav class="sidebar-nav" aria-label="Home Navigation">
+            <button class="sidebar-nav-item active" type="button" data-tab="home" onclick="S.tab('home')" title="For You">
+              <i class="fas fa-heart"></i>
+              <span class="nav-label">For You</span>
+            </button>
+            <button class="sidebar-nav-item" type="button" data-tab="trending" onclick="S.tab('trending')" title="Top Charts">
+              <i class="fas fa-chart-line"></i>
+              <span class="nav-label">Top Charts</span>
+            </button>
+            <button class="sidebar-nav-item" type="button" data-tab="search" onclick="S.tab('search')" title="Discover / Search">
+              <i class="fas fa-magnifying-glass"></i>
+              <span class="nav-label">Discover</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- LIBRARY GROUP -->
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">LIBRARY</div>
+          <nav class="sidebar-nav" aria-label="Library Navigation">
+            <button class="sidebar-nav-item" type="button" data-tab="playlist" onclick="S.tab('playlist')" title="Playlists">
+              <i class="fas fa-layer-group"></i>
+              <span class="nav-label">Playlists</span>
+            </button>
+            <button class="sidebar-nav-item" type="button" data-tab="liked" onclick="S.tab('liked')" title="Liked Songs">
+              <i class="fas fa-music"></i>
+              <span class="nav-label">Liked Songs</span>
+            </button>
+            <button class="sidebar-nav-item" type="button" data-tab="imported" onclick="S.tab('imported')" title="Import">
+              <i class="fas fa-file-import"></i>
+              <span class="nav-label">Import</span>
+            </button>
+            <button class="sidebar-nav-item" type="button" id="playlistDrawerBtn" onclick="S.togglePlaylistDrawer()" title="Up Next Queue">
+              <i class="fas fa-bars-staggered"></i>
+              <span class="nav-label">Queue</span>
+              <span class="nav-badge" id="qBadge"></span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- FAVORITES (GENRE FILTERS) GROUP -->
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">FAVORITES</div>
+          <nav class="sidebar-nav" aria-label="Genre Filters">
+            <button class="sidebar-genre-item active" type="button" data-genre="all" onclick="S.tab('home'); S.filterGenre('all')" title="All Genres">
+              <i class="fas fa-compact-disc"></i>
+              <span class="nav-label">All Genres</span>
+            </button>
+            <button class="sidebar-genre-item" type="button" data-genre="rnb" onclick="S.tab('home'); S.filterGenre('rnb')" title="R&B Hits">
+              <i class="fas fa-headphones"></i>
+              <span class="nav-label">R&B Hits</span>
+            </button>
+            <button class="sidebar-genre-item" type="button" data-genre="pop" onclick="S.tab('home'); S.filterGenre('pop')" title="Pop Global">
+              <i class="fas fa-star"></i>
+              <span class="nav-label">Pop Global</span>
+            </button>
+            <button class="sidebar-genre-item" type="button" data-genre="hiphop" onclick="S.tab('home'); S.filterGenre('hiphop')" title="Hip-Hop">
+              <i class="fas fa-microphone"></i>
+              <span class="nav-label">Hip-Hop</span>
+            </button>
+            <button class="sidebar-genre-item" type="button" data-genre="indie" onclick="S.tab('home'); S.filterGenre('indie')" title="Indie & Alt">
+              <i class="fas fa-guitar"></i>
+              <span class="nav-label">Indie &amp; Alt</span>
+            </button>
+            <button class="sidebar-genre-item" type="button" data-genre="electronic" onclick="S.tab('home'); S.filterGenre('electronic')" title="Electronic">
+              <i class="fas fa-bolt"></i>
+              <span class="nav-label">Electronic</span>
+            </button>
+            <button class="sidebar-genre-item" type="button" data-genre="lofi" onclick="S.tab('home'); S.filterGenre('lofi')" title="Lo-Fi & Chill">
+              <i class="fas fa-moon"></i>
+              <span class="nav-label">Lo-Fi &amp; Chill</span>
+            </button>
+            <button class="sidebar-genre-item" type="button" data-genre="rock" onclick="S.tab('home'); S.filterGenre('rock')" title="Rock">
+              <i class="fas fa-drum"></i>
+              <span class="nav-label">Rock</span>
+            </button>
+          </nav>
         </div>
       </div>
-      <nav class="slim-nav" aria-label="Primary">
-        <button class="slim-tab-btn active" data-tab="home" onclick="S.tab('home')" title="Home">
-          <i class="fas fa-house"></i>
-          <span class="spine-label">Room</span>
-        </button>
-        <button class="slim-tab-btn" data-tab="search" onclick="S.tab('search')" title="Search">
-          <i class="fas fa-magnifying-glass"></i>
-          <span class="spine-label">Find</span>
-        </button>
-        <button class="slim-tab-btn" data-tab="trending" onclick="S.tab('trending')" title="Trending">
-          <i class="fas fa-chart-line"></i>
-          <span class="spine-label">Charts</span>
-        </button>
-        <button class="slim-tab-btn" data-tab="playlist" onclick="S.tab('playlist')" title="Playlists">
-          <i class="fas fa-list"></i>
-          <span class="spine-label">Shelves</span>
-        </button>
-        <button class="slim-tab-btn" data-tab="imported" onclick="S.tab('imported')" title="Import">
-          <i class="fas fa-file-import"></i>
-          <span class="spine-label">Import</span>
-        </button>
-        <button class="slim-tab-btn" data-tab="liked" onclick="S.tab('liked')" title="Liked">
-          <i class="fas fa-heart"></i>
-          <span class="spine-label">Archive</span>
-        </button>
-      </nav>
-      <div class="slim-sidebar-bottom">
-        <button class="slim-tab-btn" onclick="document.getElementById('playlistDrawerBtn').click()" title="Queue">
-          <i class="fas fa-bars-staggered"></i>
-          <span class="spine-label">Queue</span>
-        </button>
-        <button class="ghost-btn spec-icon-btn" id="playlistDrawerBtn" type="button" aria-label="Open playlist drawer" style="display:none;"></button>
-        <button class="slim-tab-btn account" id="sidebarAccountBtn" onclick="S.openAccount()" title="Account">
+
+      <div class="sidebar-footer">
+        <button class="sidebar-account-btn" id="sidebarAccountBtn" type="button" onclick="S.openAccount()" title="Account">
           <span class="avatar" id="sidebarAvatarBadge">U</span>
+          <span class="nav-label" id="sidebarAccountLabel">Account</span>
         </button>
       </div>
     </aside>
 
+    <!-- ═══ MAIN SHELL ═══ -->
     <div class="main-shell">
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="topbar-search">
+            <i class="fas fa-magnifying-glass"></i>
+            <input id="topNavSearchInput" type="text" placeholder="Search" autocomplete="off" aria-label="Search music"
+              onkeydown="if(event.key==='Enter')S.search()" oninput="S.syncInputs(this.value,'top')">
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="topbar-likes-btn" type="button" onclick="S.tab('liked')">
+            <i class="fas fa-heart"></i>
+            <span>My Likes</span>
+          </button>
+          <button class="topbar-user-btn" type="button" onclick="S.openAccount()" aria-label="Account">
+            <span class="topbar-user-name" id="accountLabel">Account</span>
+            <span class="topbar-user-avatar" id="avatarBadge">U</span>
+          </button>
+        </div>
+      </header>
 
-      <!-- ═══ CONTENT ═══ -->
+      <!-- CONTENT AREA -->
       <main class="content" id="content">
 
         <!-- HOME -->
         <section class="pane active" id="pane-home">
-          <div class="home-playcloud-layout">
-            <!-- ══ MAIN STREAM COLUMN ══ -->
-            <div class="home-stream-col">
-              <!-- Top Sub-Navigation (Breadcrumb, Search & Quick Genre Links) -->
-              <nav class="home-subnav" aria-label="Home sub-navigation">
-                <div class="home-breadcrumb">
-                  <span class="home-bc-muted">Browse Music</span>
-                  <i class="fas fa-chevron-right home-bc-sep"></i>
-                  <span class="home-bc-current" id="homeCurrentCategory">Curated & Trending</span>
-                </div>
-                <div class="home-subnav-links" id="homeSubnavLinks">
-                  <button class="home-sub-btn active" type="button" data-genre="all" onclick="S.filterGenre('all')">All</button>
-                  <button class="home-sub-btn" type="button" data-genre="rnb" onclick="S.filterGenre('rnb')">R&B Hits</button>
-                  <button class="home-sub-btn" type="button" data-genre="pop" onclick="S.filterGenre('pop')">Pop Global</button>
-                  <button class="home-sub-btn" type="button" data-genre="hiphop" onclick="S.filterGenre('hiphop')">Hip-Hop</button>
-                  <button class="home-sub-btn" type="button" data-genre="indie" onclick="S.filterGenre('indie')">Indie & Alt</button>
-                  <button class="home-sub-btn" type="button" data-genre="electronic" onclick="S.filterGenre('electronic')">Electronic</button>
-                  <button class="home-sub-btn" type="button" data-genre="lofi" onclick="S.filterGenre('lofi')">Lo-Fi & Chill</button>
-                  <button class="home-sub-btn" type="button" data-genre="rock" onclick="S.filterGenre('rock')">Rock</button>
-                </div>
-                <div class="home-subnav-actions">
-                  <button class="home-shuffle-pill" type="button" onclick="S.shuffleAllHome()" title="Shuffle Play All Songs">
-                    <i class="fas fa-shuffle"></i> <span>Begin a Drift</span>
+          <!-- For You Horizontal Section -->
+          <div class="section-block">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2 class="section-heading" id="homeCurrentCategory">For You</h2>
+              </div>
+              <div class="section-header-actions">
+                <button class="pill-btn" type="button" onclick="S.shuffleAllHome()" title="Shuffle Play All">
+                  <i class="fas fa-shuffle"></i>
+                  <span>Shuffle</span>
+                </button>
+                <div class="carousel-arrows">
+                  <button class="icon-circle-btn" type="button" aria-label="Scroll left" onclick="S.scrollForYou(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                  </button>
+                  <button class="icon-circle-btn" type="button" aria-label="Scroll right" onclick="S.scrollForYou(1)">
+                    <i class="fas fa-chevron-right"></i>
                   </button>
                 </div>
-              </nav>
-
-              <!-- Editorial Hero Spotlight Card (Reference style: Warm Coral/Amber card with artist feature) -->
-              <section class="home-hero-banner" id="homeHeroBanner" aria-label="Curated Hero Banner">
-                <!-- Dynamically rendered by S.renderHome() -->
-              </section>
-
-              <!-- APK Download Ad -->
-              <div class="home-apk-ad" id="homeApkAd">
-                <img src="logo_app_icon.svg" alt="Sumic" />
-                <div class="home-apk-ad-info">
-                  <div class="apk-ad-title">Try Sumic on Android</div>
-                  <div class="apk-ad-sub">by Saurabh222007 · Latest release</div>
-                </div>
-                <a id="homeApkDownloadBtn" class="apk-download-btn" href="#" target="_blank">
-                  <i class="fas fa-download"></i> Get APK
-                </a>
-              </div>
-
-              <!-- Dynamic Recommendations (When user has active playback history) -->
-              <section class="home-genre-section" id="recommendationsSection" style="display: none;">
-                <div class="home-section-header">
-                  <div>
-                    <span class="home-section-eyebrow" id="recommendationLabel">Tailored For You</span>
-                    <h2 class="home-section-heading" id="recommendationTitle">Based on your recent listening</h2>
-                  </div>
-                </div>
-                <div class="home-tracks-grid" id="recommendationsGrid"></div>
-              </section>
-
-              <!-- Dynamic Genre-Wise Song Streams Container (Scrollable, Full Variety, Zero Duplication) -->
-              <div class="home-genre-streams" id="homeGenreStreams">
-                <!-- Dynamically rendered by S.renderHome() -->
               </div>
             </div>
 
-            <!-- ══ RIGHT SIDEBAR PANEL (Activity, Live Vibe Waveform & Playlists) ══ -->
-            <aside class="home-right-rail" aria-label="Activity and Quick Playlists">
-              <!-- User Profile Header Card -->
-              <div class="home-curator-card" onclick="S.openAccount()" title="Account Settings">
-                <div class="home-curator-avatar" id="homeCuratorAvatar">S</div>
-                <div class="home-curator-info">
-                  <div class="home-curator-name" id="homeCuratorName">Sandro Tavartkiladze</div>
-                  <div class="home-curator-status">Premium Curator</div>
-                </div>
-                <i class="fas fa-ellipsis home-curator-icon"></i>
-              </div>
+            <!-- Genre Quick Pills (visible on smaller screens) -->
+            <div class="home-subnav-links" id="homeSubnavLinks">
+              <button class="home-sub-btn active" type="button" data-genre="all" onclick="S.filterGenre('all')">All</button>
+              <button class="home-sub-btn" type="button" data-genre="rnb" onclick="S.filterGenre('rnb')">R&amp;B Hits</button>
+              <button class="home-sub-btn" type="button" data-genre="pop" onclick="S.filterGenre('pop')">Pop Global</button>
+              <button class="home-sub-btn" type="button" data-genre="hiphop" onclick="S.filterGenre('hiphop')">Hip-Hop</button>
+              <button class="home-sub-btn" type="button" data-genre="indie" onclick="S.filterGenre('indie')">Indie &amp; Alt</button>
+              <button class="home-sub-btn" type="button" data-genre="electronic" onclick="S.filterGenre('electronic')">Electronic</button>
+              <button class="home-sub-btn" type="button" data-genre="lofi" onclick="S.filterGenre('lofi')">Lo-Fi &amp; Chill</button>
+              <button class="home-sub-btn" type="button" data-genre="rock" onclick="S.filterGenre('rock')">Rock</button>
+            </div>
 
-              <!-- Live Audio Pulse & Waveform Card (from reference) -->
-              <div class="home-live-pulse-card">
-                <div class="home-pulse-top">
-                  <div class="home-pulse-badge">
-                    <span class="pulse-dot"></span> Live Pulse
-                  </div>
-                  <span class="home-pulse-tag">LP • 2026</span>
-                </div>
-                
-                <div class="home-pulse-wave-visual">
-                  <svg class="pulse-wave-svg" viewBox="0 0 280 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <path class="wave-path-glow" d="M 0 35 C 30 10, 60 60, 90 20 C 120 -5, 150 75, 180 35 C 210 10, 240 55, 280 35" fill="none" stroke="#D96548" stroke-width="6" opacity="0.3" stroke-linecap="round"/>
-                    <path class="wave-path" d="M 0 35 C 30 10, 60 60, 90 20 C 120 -5, 150 75, 180 35 C 210 10, 240 55, 280 35" fill="none" stroke="#D96548" stroke-width="2.5" stroke-linecap="round"/>
-                  </svg>
-                </div>
+            <div class="for-you-row" id="homeHeroBanner" aria-label="For You">
+              <!-- Dynamically rendered by S.renderHome() -->
+            </div>
+          </div>
 
-                <div class="home-pulse-bottom">
-                  <div class="home-pulse-track">
-                    <div class="home-pulse-title" id="homePulseTitle">Dungen Live</div>
-                    <div class="home-pulse-artist" id="homePulseArtist">Analog Synthesizer Edition</div>
-                  </div>
-                  <button class="home-pulse-play-btn" type="button" aria-label="Play Live Session" onclick="S.playLivePulse()">
-                    <i class="fas fa-play"></i>
-                  </button>
-                </div>
+          <!-- Top Songs + Playlists Bento Row (Reference layout) -->
+          <div class="home-bento-row" id="homeBentoRow">
+            <div class="home-bento-songs">
+              <div class="section-header-row">
+                <h2 class="section-heading">Top Songs</h2>
+                <button class="text-link-btn" type="button" onclick="S.tab('trending')">See all</button>
               </div>
+              <div class="top-songs-list" id="homeTopSongs">
+                <!-- Dynamically rendered by S.renderHome() -->
+              </div>
+            </div>
+            <div class="home-bento-playlists">
+              <div class="section-header-row">
+                <h2 class="section-heading">Playlists</h2>
+                <button class="text-link-btn" type="button" onclick="S.tab('playlist')">See all</button>
+              </div>
+              <div class="home-playlists-grid" id="homePlaylistsGrid">
+                <!-- Dynamically rendered by S.renderHome() -->
+              </div>
+            </div>
+          </div>
 
-              <!-- Tabbed Mini Feed (Playlists / Podcasts / Albums) -->
-              <div class="home-side-feed">
-                <div class="home-feed-tabs" role="tablist">
-                  <button class="home-feed-tab active" type="button" data-feed="playlists" onclick="S.switchSideFeed('playlists')">Playlists</button>
-                  <button class="home-feed-tab" type="button" data-feed="podcasts" onclick="S.switchSideFeed('podcasts')">Podcasts</button>
-                  <button class="home-feed-tab" type="button" data-feed="albums" onclick="S.switchSideFeed('albums')">Albums</button>
-                </div>
-                <div class="home-feed-list" id="homeFeedList">
-                  <!-- Dynamically rendered -->
-                </div>
+          <!-- Dynamic Recommendations (when user has listening history) -->
+          <section class="home-genre-section" id="recommendationsSection" style="display: none;">
+            <div class="section-header-row">
+              <div>
+                <span class="section-eyebrow" id="recommendationLabel">Tailored For You</span>
+                <h2 class="section-heading" id="recommendationTitle">Based on your listening</h2>
               </div>
-            </aside>
+            </div>
+            <div class="track-grid" id="recommendationsGrid"></div>
+          </section>
+
+          <!-- Genre-Wise Song Streams -->
+          <div class="home-genre-streams" id="homeGenreStreams">
+            <!-- Dynamically rendered by S.renderHome() -->
+          </div>
+
+          <!-- APK Download Banner -->
+          <div class="home-apk-ad" id="homeApkAd">
+            <img src="logo_app_icon.svg" alt="Sumic" />
+            <div class="home-apk-ad-info">
+              <div class="apk-ad-title">Try Sumic on Android</div>
+              <div class="apk-ad-sub">by Saurabh222007 · Latest release</div>
+            </div>
+            <a id="homeApkDownloadBtn" class="apk-download-btn" href="#" target="_blank" rel="noopener">
+              <i class="fas fa-download"></i> Get APK
+            </a>
           </div>
         </section>
 
         <!-- SEARCH -->
         <section class="pane" id="pane-search">
+          <div class="page-header">
+            <h2>Search</h2>
+            <p>Find any song, artist, or album instantly.</p>
+          </div>
           <div class="search-bar">
             <div class="search-field">
               <i class="fas fa-magnifying-glass"></i>
               <input id="searchQ" placeholder="Search songs, artists…" autocomplete="off" aria-label="Search library"
                 onkeydown="if(event.key==='Enter')S.search()" oninput="S.syncInputs(this.value,'search')">
-              <button class="x-btn" id="xBtn" aria-label="Clear search" onclick="S.clearSearch()"
-                style="display:none"><i class="fas fa-times"></i></button>
+              <button class="x-btn" id="xBtn" aria-label="Clear search" onclick="S.clearSearch()" style="display:none">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
-            <button class="go-btn" type="button" aria-label="Run search" onclick="S.search()"><i
-                class="fas fa-search"></i> Search</button>
+            <button class="primary-btn" type="button" aria-label="Run search" onclick="S.search()">Search</button>
+          </div>
+          <input type="hidden" id="heroQ" value="">
+          <div class="recent-wrap" id="recentWrap" style="display:none">
+            <span class="recent-label">Recent</span>
+            <div class="recent-chips" id="recentChips"></div>
           </div>
           <div id="results">
-            <div class="empty-hint"><i class="fas fa-music"></i>
+            <div class="empty-hint">
+              <i class="fas fa-music"></i>
               <p>Start typing to find music</p>
             </div>
           </div>
@@ -231,25 +284,29 @@
 
         <!-- QUEUE -->
         <section class="pane" id="pane-queue">
-          <div class="queue-hd">
-            <h2><i class="fas fa-list-music"></i> Up Next</h2>
-            <button class="danger-btn" type="button" aria-label="Clear queue" onclick="S.clearQueue()"><i
-                class="fas fa-trash"></i> Clear</button>
+          <div class="page-header page-header-row">
+            <div>
+              <h2>Up Next</h2>
+              <p>Your active playback queue.</p>
+            </div>
+            <button class="danger-btn" type="button" aria-label="Clear queue" onclick="S.clearQueue()">
+              <i class="fas fa-trash"></i> Clear
+            </button>
           </div>
           <div id="queueList">
-            <div class="empty-hint"><i class="fas fa-music"></i>
-              <p>Queue is empty</p><span>Search for songs to add them</span>
+            <div class="empty-hint">
+              <i class="fas fa-music"></i>
+              <p>Queue is empty</p>
+              <span>Search for songs to add them</span>
             </div>
           </div>
         </section>
 
+        <!-- TRENDING / CHARTS -->
         <section class="pane" id="pane-trending">
-          <div class="trend-header">
-            <div>
-              <p class="spot-eyebrow">Trending</p>
-              <h2>What’s hot right now</h2>
-              <p>Explore the songs and playlists rising across the charts today.</p>
-            </div>
+          <div class="page-header">
+            <h2>Top Charts</h2>
+            <p>Explore the songs and playlists rising across the charts today.</p>
           </div>
           <div class="trend-grid" id="trendPlaylistsGrid"></div>
           <div class="trend-list">
@@ -258,19 +315,21 @@
           </div>
         </section>
 
+        <!-- LIKED SONGS -->
         <section class="pane" id="pane-liked">
           <div class="page-header">
-            <h2>Saved to Archive</h2>
-            <p>Your curated records preserved in one quiet personal collection.</p>
+            <h2>Liked Songs</h2>
+            <p>Your saved tracks in one clean collection.</p>
           </div>
           <div id="likedResults"></div>
         </section>
 
+        <!-- PLAYLISTS -->
         <section class="pane" id="pane-playlist">
           <div id="playlistListContainer">
             <div class="page-header">
-              <h2>Archival Shelves</h2>
-              <p>Organize your music into tactile collections for every mood and moment.</p>
+              <h2>Playlists</h2>
+              <p>Your personal and curated collections.</p>
             </div>
             <div class="dash-grid" id="myPlaylistsGrid">
               <!-- Dynamic playlists rendered here -->
@@ -281,10 +340,11 @@
           </div>
         </section>
 
+        <!-- IMPORT -->
         <section class="pane" id="pane-imported">
           <div class="page-header">
-            <h2>Import External Archive</h2>
-            <p>Paste a public playlist link to bring outside music into SUMIC’s listening room.</p>
+            <h2>Import Playlist</h2>
+            <p>Paste a public Spotify playlist link to bring your music into Sumic.</p>
           </div>
 
           <div class="import-panel">
@@ -292,10 +352,10 @@
             <div class="import-field">
               <input id="importUrl" type="url" placeholder="https://open.spotify.com/playlist/…" autocomplete="url"
                 aria-label="Spotify playlist link">
-              <button id="importBtn" class="go-btn" type="button" aria-label="Import playlist"
+              <button id="importBtn" class="primary-btn" type="button" aria-label="Import playlist"
                 onclick="S.importPlaylist()">Import</button>
             </div>
-            <p class="import-hint">Supports public playlist links from Spotify or other open web collections.</p>
+            <p class="import-hint">Supports public Spotify playlist links.</p>
           </div>
 
           <div id="importStatus" class="import-status" role="status" aria-live="polite"></div>
@@ -303,96 +363,113 @@
         </section>
       </main>
 
-      <div id="dockMount" class="dock-shell"></div>
-
+      <!-- PLAYLIST QUEUE DRAWER -->
       <aside class="playlist-drawer" id="playlistDrawer" aria-label="Playlist drawer">
         <div class="playlist-drawer-header">
           <div>
             <p class="sec-label">Your queue</p>
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <h3 style="margin: 0;">Now playing list</h3>
-              <button class="autoplay-toggle" id="autoplayToggleBtn" onclick="S.toggleAutoplay()"
+            <div class="drawer-title-row">
+              <h3>Up Next</h3>
+              <button class="autoplay-toggle" id="autoplayToggleBtn" type="button" onclick="S.toggleAutoplay()"
                 aria-label="Toggle Autoplay" title="Autoplay similar songs when queue ends">
                 <i class="fas fa-infinity"></i> Autoplay
               </button>
             </div>
           </div>
-          <button class="ghost-btn" id="closeDrawerBtn" type="button" aria-label="Close playlist drawer"><i
-              class="fas fa-xmark"></i></button>
+          <button class="ghost-btn" id="closeDrawerBtn" type="button" aria-label="Close playlist drawer">
+            <i class="fas fa-xmark"></i>
+          </button>
         </div>
         <div class="playlist-drawer-list" id="playlistDrawerList"></div>
       </aside>
 
       <!-- ═══ NOW PLAYING BAR ═══ -->
       <div class="npbar" id="npbar">
-        <!-- Album thumb + track info -->
-        <div class="fp-bar-track">
-          <div class="fp-bar-thumb" id="npThumb">
-            <i class="fas fa-music"></i>
-          </div>
-          <div class="fp-bar-info">
-            <div class="fp-bar-title" id="npTitle">Nothing playing</div>
-            <div class="fp-bar-artist" id="npArt">--</div>
-          </div>
+        <!-- Top edge thin progress bar -->
+        <div class="npbar-progress-track" id="npProg" onclick="S.seekMini(event)">
+          <div class="npbar-progress-fill" id="npFill"></div>
         </div>
 
-        <!-- Playback controls -->
-        <div class="fp-bar-controls">
-          <button class="fp-bar-btn" type="button" aria-label="Previous" onclick="S.prev()"><i
-              class="fas fa-backward-step"></i></button>
-          <button class="fp-bar-play" id="npPlay" type="button" aria-label="Play or pause" onclick="S.pp()"><i
-              class="fas fa-play"></i></button>
-          <button class="fp-bar-btn" type="button" aria-label="Next" onclick="S.next()"><i
-              class="fas fa-forward-step"></i></button>
-        </div>
-
-        <!-- Progress slider -->
-        <div class="fp-bar-progress">
-          <div class="fp-bar-track-line" id="npProg" onclick="S.seekMini(event)">
-            <div class="fp-bar-fill" id="npFill"></div>
+        <div class="npbar-inner">
+          <!-- Left: Album thumb + track info -->
+          <div class="npbar-track" onclick="S.expand()" title="Open full screen player">
+            <div class="npbar-thumb" id="npThumb">
+              <i class="fas fa-music"></i>
+            </div>
+            <div class="npbar-info">
+              <div class="npbar-title" id="npTitle">Nothing playing</div>
+              <div class="npbar-artist" id="npArt">--</div>
+            </div>
           </div>
-        </div>
 
-        <!-- Time -->
-        <div class="fp-bar-time">
-          <span id="npCur">0:00</span> / <span id="npDur">0:00</span>
-        </div>
-
-        <!-- Utility icons -->
-        <div class="fp-bar-utils">
-          <button class="fp-util-btn" id="npRepeatBtn" type="button" aria-label="Repeat" onclick="S.repeat()"
-            title="Repeat"><i class="fas fa-repeat"></i></button>
-          <button class="fp-util-btn" id="npShuffleBtn" type="button" aria-label="Shuffle" onclick="S.shuffle()"
-            title="Shuffle"><i class="fas fa-shuffle"></i></button>
-          <div class="fp-bar-vol-wrap">
-            <button class="fp-util-btn" type="button" aria-label="Volume" onclick="S.mute()" id="npVolBtn"><i
-                class="fas fa-volume-high"></i></button>
-            <input class="vol-range fp-vol-range" id="npVolRange" type="range" min="0" max="1" step="0.02" value="0.8"
-              aria-label="Volume" oninput="S.vol(this.value)">
+          <!-- Time -->
+          <div class="npbar-time">
+            <span id="npCur">0:00</span> / <span id="npDur">0:00</span>
           </div>
-          <button class="fp-util-btn" id="expandBtn" type="button" aria-label="Expand player" onclick="S.expand()"
-            title="Expand"><i class="fas fa-chevron-up"></i></button>
+
+          <!-- Center: Playback controls -->
+          <div class="npbar-controls">
+            <button class="npbar-util" id="npRepeatBtn" type="button" aria-label="Repeat" onclick="S.repeat()" title="Repeat">
+              <i class="fas fa-repeat"></i>
+            </button>
+            <button class="npbar-btn" type="button" aria-label="Previous" onclick="S.prev()">
+              <i class="fas fa-backward-step"></i>
+            </button>
+            <button class="npbar-play" id="npPlay" type="button" aria-label="Play or pause" onclick="S.pp()">
+              <i class="fas fa-play"></i>
+            </button>
+            <button class="npbar-btn" type="button" aria-label="Next" onclick="S.next()">
+              <i class="fas fa-forward-step"></i>
+            </button>
+            <button class="npbar-util" id="npShuffleBtn" type="button" aria-label="Shuffle" onclick="S.shuffle()" title="Shuffle">
+              <i class="fas fa-shuffle"></i>
+            </button>
+          </div>
+
+          <!-- Right: Volume & Expand -->
+          <div class="npbar-right">
+            <div class="npbar-vol-wrap">
+              <button class="npbar-util" type="button" aria-label="Volume" onclick="S.mute()" id="npVolBtn">
+                <i class="fas fa-volume-high"></i>
+              </button>
+              <input class="vol-range" id="npVolRange" type="range" min="0" max="1" step="0.02" value="0.8"
+                aria-label="Volume" oninput="S.vol(this.value)">
+            </div>
+            <button class="npbar-util" type="button" aria-label="Queue" onclick="S.togglePlaylistDrawer()" title="Queue">
+              <i class="fas fa-bars-staggered"></i>
+            </button>
+            <button class="npbar-util" id="expandBtn" type="button" aria-label="Expand player" onclick="S.expand()" title="Expand">
+              <i class="fas fa-chevron-up"></i>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- ═══ EXPANDED PLAYER (Arvo-inspired) ═══ -->
+      <!-- ═══ FULL-SCREEN PLAYER ═══ -->
       <div class="fullplayer" id="fullplayer">
         <div class="fp-bg" id="fpBg"></div>
 
-        <!-- ── Top Header ── -->
+        <!-- Top Header -->
         <div class="fp-header">
-          <div class="fp-tab-toggle">
-            <button class="fp-tab-btn active" id="fpTabSong" onclick="S.fpTab('song')">Song</button>
-            <button class="fp-tab-btn" id="fpTabLyric" onclick="S.fpTab('lyric')">Lyric</button>
+          <div class="fp-brand-mini">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+              <path d="M 30.909,30.909 A 27,27 0 0,1 69.091,30.909" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+              <path d="M 76.080,43.012 A 27,27 0 0,1 56.988,76.080" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+              <path d="M 43.012,76.080 A 27,27 0 0,1 23.920,43.012" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" />
+            </svg>
+            <span>Now Playing</span>
           </div>
-          <button class="fp-exit-btn" type="button" aria-label="Collapse player" onclick="S.expand()">
-            <i class="fas fa-compress"></i>
+          <div class="fp-tab-toggle">
+            <button class="fp-tab-btn active" id="fpTabSong" type="button" onclick="S.fpTab('song')">Song</button>
+            <button class="fp-tab-btn" id="fpTabLyric" type="button" onclick="S.fpTab('lyric')">Lyrics</button>
+          </div>
+          <button class="fp-exit-btn" type="button" aria-label="Collapse player" onclick="S.expand()" title="Minimize">
+            <i class="fas fa-chevron-down"></i>
           </button>
         </div>
 
-        <!-- ── Center Content ── -->
+        <!-- Center Content -->
         <div class="fp-content" id="fpContent">
-          <!-- Vinyl Card (always visible) -->
           <div class="fp-vinyl-section" id="fpVinylSection">
             <div class="fp-vinyl-card">
               <div class="fp-vinyl-record" id="fpDisc">
@@ -403,60 +480,60 @@
                 <div class="fp-vinyl-hole"></div>
               </div>
             </div>
+            <div class="fp-track-meta-center">
+              <h2 class="fp-center-title" id="fpTitle">Nothing playing</h2>
+              <p class="fp-center-artist" id="fpArt">--</p>
+            </div>
           </div>
 
-          <!-- Lyrics Panel (visible in Lyric mode) -->
           <div class="fp-lyrics-panel" id="fpLyricsPanel">
             <div class="lyrics-lines" id="lyricsLines"></div>
           </div>
         </div>
 
-        <!-- ── Floating Bottom Playback Bar ── -->
+        <!-- Bottom Playback Console -->
         <div class="fp-bottom-bar">
-          <!-- Album thumb + track info -->
-          <div class="fp-bar-track">
-            <div class="fp-bar-thumb" id="fpBarThumb">
-              <i class="fas fa-music"></i>
-            </div>
-            <div class="fp-bar-info">
-              <div class="fp-bar-title" id="fpTitle">Nothing playing</div>
-              <div class="fp-bar-artist" id="fpArt">--</div>
-            </div>
-          </div>
-
-          <!-- Playback controls -->
-          <div class="fp-bar-controls">
-            <button class="fp-bar-btn" type="button" aria-label="Previous" onclick="S.prev()"><i
-                class="fas fa-backward-step"></i></button>
-            <button class="fp-bar-play" id="fpPlay" type="button" aria-label="Play or pause" onclick="S.pp()"><i
-                class="fas fa-play"></i></button>
-            <button class="fp-bar-btn" type="button" aria-label="Next" onclick="S.next()"><i
-                class="fas fa-forward-step"></i></button>
-          </div>
-
-          <!-- Progress slider -->
-          <div class="fp-bar-progress">
+          <div class="fp-progress-row">
+            <span class="fp-time-label" id="fpCur">0:00</span>
             <div class="fp-bar-track-line" id="fpBar" onclick="S.seekFull(event)">
               <div class="fp-bar-fill" id="fpFill"></div>
             </div>
+            <span class="fp-time-label" id="fpDur">0:00</span>
           </div>
 
-          <!-- Time -->
-          <div class="fp-bar-time">
-            <span id="fpCur">0:00</span> / <span id="fpDur">0:00</span>
-          </div>
+          <div class="fp-controls-row">
+            <div class="fp-bar-track">
+              <div class="fp-bar-thumb" id="fpBarThumb">
+                <i class="fas fa-music"></i>
+              </div>
+            </div>
 
-          <!-- Utility icons -->
-          <div class="fp-bar-utils">
-            <button class="fp-util-btn" id="repeatBtn" type="button" aria-label="Repeat" onclick="S.repeat()"
-              title="Repeat"><i class="fas fa-repeat"></i></button>
-            <button class="fp-util-btn" id="shuffleBtn" type="button" aria-label="Shuffle" onclick="S.shuffle()"
-              title="Shuffle"><i class="fas fa-shuffle"></i></button>
-            <div class="fp-bar-vol-wrap">
-              <button class="fp-util-btn" type="button" aria-label="Volume" onclick="S.mute()" id="volBtn"><i
-                  class="fas fa-volume-high"></i></button>
-              <input class="vol-range fp-vol-range" id="volRange" type="range" min="0" max="1" step="0.02" value="0.8"
-                aria-label="Volume" oninput="S.vol(this.value)">
+            <div class="fp-bar-controls">
+              <button class="fp-util-btn" id="repeatBtn" type="button" aria-label="Repeat" onclick="S.repeat()" title="Repeat">
+                <i class="fas fa-repeat"></i>
+              </button>
+              <button class="fp-bar-btn" type="button" aria-label="Previous" onclick="S.prev()">
+                <i class="fas fa-backward-step"></i>
+              </button>
+              <button class="fp-bar-play" id="fpPlay" type="button" aria-label="Play or pause" onclick="S.pp()">
+                <i class="fas fa-play"></i>
+              </button>
+              <button class="fp-bar-btn" type="button" aria-label="Next" onclick="S.next()">
+                <i class="fas fa-forward-step"></i>
+              </button>
+              <button class="fp-util-btn" id="shuffleBtn" type="button" aria-label="Shuffle" onclick="S.shuffle()" title="Shuffle">
+                <i class="fas fa-shuffle"></i>
+              </button>
+            </div>
+
+            <div class="fp-bar-utils">
+              <div class="fp-bar-vol-wrap">
+                <button class="fp-util-btn" type="button" aria-label="Volume" onclick="S.mute()" id="volBtn">
+                  <i class="fas fa-volume-high"></i>
+                </button>
+                <input class="vol-range" id="volRange" type="range" min="0" max="1" step="0.02" value="0.8"
+                  aria-label="Volume" oninput="S.vol(this.value)">
+              </div>
             </div>
           </div>
         </div>
@@ -467,62 +544,28 @@
         <div class="spinner"></div><span>Searching…</span>
       </div>
     </div>
+  </div>
 
-    <script src="app.js"></script>
-    <script src="card-nav.js"></script>
-    <script type="module" src="dock-init.js"></script>
-    <script type="module">
-      import { initVariableProximity } from './variable-proximity.js';
-      import { initDither } from './dither-bg.js';
-
-      // Initialize variable proximity logo in sidebar
-      const brandName = document.querySelector('.sidebar .brand-name');
-      if (brandName) {
-        initVariableProximity(brandName, {
-          label: 'SUMIC',
-          fromFontVariationSettings: "'wght' 300, 'opsz' 8",
-          toFontVariationSettings: "'wght' 1000, 'opsz' 40",
-          container: document.getElementById('sidebar'),
-          radius: 120,
-          falloff: 'linear'
-        });
-      }
-
-      // Initialize Dither Background Effect
-      const ditherContainer = document.getElementById('ditherBg');
-      if (ditherContainer) {
-        window.sumicDither = initDither(ditherContainer, {
-          waveSpeed: 0.05,
-          waveFrequency: 3,
-          waveAmplitude: 0.3,
-          waveColor: [0.12, 0.12, 0.12], // Quiet monochrome graphite wave
-          colorNum: 4,
-          pixelSize: 2,
-          enableMouseInteraction: true,
-          mouseRadius: 1
-        });
-      }
-
-      // Fetch latest APK release for the home page download ad
-      (function fetchLatestApk() {
-        fetch('https://api.github.com/repos/saurabh222007/sumic/releases/latest')
-          .then(r => r.json())
-          .then(data => {
-            if (!data || !data.assets) return;
-            const apk = data.assets.find(a => a.name && a.name.endsWith('.apk'));
-            if (apk && apk.browser_download_url) {
-              const btn = document.getElementById('homeApkDownloadBtn');
-              if (btn) btn.href = apk.browser_download_url;
-            }
-            // Update the subtitle with version info
-            if (data.tag_name) {
-              const sub = document.querySelector('#homeApkAd .apk-ad-sub');
-              if (sub) sub.textContent = 'by Saurabh222007 · ' + data.tag_name;
-            }
-          })
-          .catch(err => console.error('APK fetch error:', err));
-      })();
-    </script>
+  <script src="app.js"></script>
+  <script>
+    (function fetchLatestApk() {
+      fetch('https://api.github.com/repos/saurabh222007/sumic/releases/latest')
+        .then(r => r.json())
+        .then(data => {
+          if (!data || !data.assets) return;
+          const apk = data.assets.find(a => a.name && a.name.endsWith('.apk'));
+          if (apk && apk.browser_download_url) {
+            const btn = document.getElementById('homeApkDownloadBtn');
+            if (btn) btn.href = apk.browser_download_url;
+          }
+          if (data.tag_name) {
+            const sub = document.querySelector('#homeApkAd .apk-ad-sub');
+            if (sub) sub.textContent = 'by Saurabh222007 · ' + data.tag_name;
+          }
+        })
+        .catch(() => {});
+    })();
+  </script>
 </body>
 
 </html>
